@@ -19,6 +19,9 @@ import AdminLogin from "@/pages/admin/AdminLogin";
 import Account from "@/pages/Account";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
+import Wishlist from "@/pages/Wishlist";
+import Journal from "@/pages/Journal";
+import Lookbook from "@/pages/Lookbook";
 
 function Router() {
   return (
@@ -36,6 +39,9 @@ function Router() {
         <Route path="/admin/dashboard" component={Dashboard} />
         <Route path="/about" component={About} />
         <Route path="/contact" component={Contact} />
+        <Route path="/wishlist" component={Wishlist} />
+        <Route path="/journal" component={Journal} />
+        <Route path="/lookbook" component={Lookbook} />
         <Route component={NotFound} />
       </Switch>
     </PageTransition>

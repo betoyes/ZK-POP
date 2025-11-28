@@ -27,7 +27,8 @@ export default function Dashboard() {
     products, categories, collections, orders, customers,
     addProduct, updateProduct, deleteProduct,
     addCategory, deleteCategory,
-    addCollection, deleteCollection
+    addCollection, deleteCollection,
+    updateOrder
   } = useProducts();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -263,7 +264,25 @@ export default function Dashboard() {
                       <TableRow key={order.id} className="hover:bg-secondary/30 border-b border-border">
                         <TableCell className="font-mono text-xs">{order.id}</TableCell>
                         <TableCell className="font-display">{order.customer}</TableCell>
-                        <TableCell className="font-mono text-xs text-right uppercase">{order.status}</TableCell>
+                        <TableCell className="font-mono text-xs text-right uppercase">
+                          <Select 
+                            defaultValue={order.status} 
+                            onValueChange={(val) => {
+                              updateOrder(order.id, val);
+                              toast({ title: "Status Atualizado", description: `Pedido ${order.id} agora está ${val}.` });
+                            }}
+                          >
+                            <SelectTrigger className="w-[130px] h-8 rounded-none border-transparent hover:border-border bg-transparent text-right justify-end px-0">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Processando">Processando</SelectItem>
+                              <SelectItem value="Enviado">Enviado</SelectItem>
+                              <SelectItem value="Entregue">Entregue</SelectItem>
+                              <SelectItem value="Cancelado">Cancelado</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
                         <TableCell className="font-mono text-xs text-right">R$ {order.total.toLocaleString()}</TableCell>
                       </TableRow>
                     ))}

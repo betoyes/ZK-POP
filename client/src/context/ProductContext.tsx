@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Product, products as initialProducts, Category, categories as initialCategories, Collection, collections as initialCollections } from '@/lib/mockData';
 import ringImage from '@assets/generated_images/diamond_ring_product_shot.png';
+import necklaceImage from '@assets/generated_images/gold_necklace_product_shot.png';
+import earringsImage from '@assets/generated_images/pearl_earrings_product_shot.png';
 
 // Mock initial orders
 const initialOrders = [
@@ -20,19 +22,55 @@ const initialCustomers = [
   { id: 'CUST-005', name: 'Beatriz Costa', email: 'bia@email.com', orders: 8, totalSpent: 82000, lastOrder: '2025-11-24' },
 ];
 
+// Mock initial posts
+const initialPosts = [
+  {
+    id: 1,
+    title: "O Guia Definitivo de Diamantes",
+    excerpt: "Entenda os 4 Cs e como escolher a pedra perfeita para sua joia eterna.",
+    date: "28 Nov 2025",
+    category: "Educação",
+    image: ringImage
+  },
+  {
+    id: 2,
+    title: "Tendências de Outono 2025",
+    excerpt: "O retorno do ouro amarelo e design maximalista.",
+    date: "25 Nov 2025",
+    category: "Tendências",
+    image: necklaceImage
+  },
+  {
+    id: 3,
+    title: "Cuidados com Suas Joias",
+    excerpt: "Como manter o brilho e a integridade de suas peças por gerações.",
+    date: "20 Nov 2025",
+    category: "Care",
+    image: earringsImage
+  }
+];
+
 interface ProductContextType {
   products: Product[];
   categories: Category[];
   collections: Collection[];
   orders: any[];
   customers: any[];
+  posts: any[];
+  wishlist: number[];
+  
   addProduct: (product: Omit<Product, 'id'>) => void;
   updateProduct: (id: number, product: Partial<Product>) => void;
   deleteProduct: (id: number) => void;
+  
   addCategory: (category: Omit<Category, 'id'>) => void;
   deleteCategory: (id: string) => void;
+  
   addCollection: (collection: Omit<Collection, 'id'>) => void;
   deleteCollection: (id: string) => void;
+  
+  updateOrder: (id: string, status: string) => void;
+  toggleWishlist: (productId: number) => void;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -41,8 +79,10 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [collections, setCollections] = useState<Collection[]>(initialCollections);
-  const [orders] = useState(initialOrders);
+  const [orders, setOrders] = useState(initialOrders);
   const [customers] = useState(initialCustomers);
+  const [posts] = useState(initialPosts);
+  const [wishlist, setWishlist] = useState<number[]>([]);
 
   // Products
   const addProduct = (newProduct: Omit<Product, 'id'>) => {
@@ -84,12 +124,27 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     setCollections(collections.filter(c => c.id !== id));
   };
 
+  // Orders
+  const updateOrder = (id: string, status: string) => {
+    setOrders(orders.map(o => (o.id === id ? { ...o, status } : o)));
+  };
+
+  // Wishlist
+  const toggleWishlist = (productId: number) => {
+    setWishlist(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
   return (
     <ProductContext.Provider value={{ 
-      products, categories, collections, orders, customers,
+      products, categories, collections, orders, customers, posts, wishlist,
       addProduct, updateProduct, deleteProduct,
       addCategory, deleteCategory,
-      addCollection, deleteCollection
+      addCollection, deleteCollection,
+      updateOrder, toggleWishlist
     }}>
       {children}
     </ProductContext.Provider>

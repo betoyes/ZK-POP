@@ -1,70 +1,159 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { categories } from '@/lib/mockData';
 import { useProducts } from '@/context/ProductContext';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Heart } from 'lucide-react';
 
 export default function Shop() {
-  const { products } = useProducts();
+  const { products, collections, wishlist, toggleWishlist } = useProducts();
   const [location] = useLocation();
   const urlParams = new URLSearchParams(window.location.search);
   const initialCategory = urlParams.get('category') || 'all';
+  const searchQuery = urlParams.get('search') || '';
 
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategory === 'all' ? [] : [initialCategory]);
+  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [sortOption, setSortOption] = useState('newest');
+
+  // Update selected categories if URL changes
+  useEffect(() => {
+    if (initialCategory !== 'all' && !selectedCategories.includes(initialCategory)) {
+      setSelectedCategories([initialCategory]);
+    }
+  }, [initialCategory]);
 
   const filteredProducts = products.filter(product => {
-    const categoryMatch = selectedCategory === 'all' || product.category === selectedCategory;
+    // Search Filter
+    if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+
+    // Category Filter
+    const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category);
+    
+    // Collection Filter
+    const collectionMatch = selectedCollections.length === 0 || selectedCollections.includes(product.collection);
+    
+    // Price Filter
     const priceMatch = product.price >= priceRange[0] && product.price <= priceRange[1];
-    return categoryMatch && priceMatch;
+    
+    return categoryMatch && collectionMatch && priceMatch;
+  }).sort((a, b) => {
+    if (sortOption === 'price-asc') return a.price - b.price;
+    if (sortOption === 'price-desc') return b.price - a.price;
+    if (sortOption === 'newest') return (a.isNew === b.isNew) ? 0 : a.isNew ? -1 : 1;
+    return 0;
   });
+
+  const toggleCategory = (id: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
+  };
+
+  const toggleCollection = (id: string) => {
+    setSelectedCollections(prev => 
+      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    );
+  };
+
+  const clearFilters = () => {
+    setSelectedCategories([]);
+    setSelectedCollections([]);
+    setPriceRange([0, 50000]);
+    setSortOption('newest');
+    window.history.pushState({}, '', '/shop'); // Clear URL params
+  };
 
   return (
     <div className="min-h-screen bg-background pt-32">
       
       <div className="container mx-auto px-6 md:px-12 pb-24">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-20 border-b border-border pb-8">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-border pb-8">
           <div>
              <h1 className="font-display text-6xl md:text-8xl font-bold tracking-tighter mb-4">Arquivo</h1>
+             {searchQuery && (
+               <p className="font-mono text-sm text-muted-foreground mb-2">
+                 Resultados para "{searchQuery}"
+               </p>
+             )}
              <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest max-w-md">
                Seleção curada de artefatos para o indivíduo moderno.
              </p>
           </div>
-          <div className="font-mono text-xs mb-2">
-            {filteredProducts.length} ITENS
+          <div className="flex flex-col items-end gap-4">
+            <div className="font-mono text-xs mb-2">
+              {filteredProducts.length} ITENS
+            </div>
+            <Select value={sortOption} onValueChange={setSortOption}>
+              <SelectTrigger className="w-[180px] rounded-none border-black">
+                <SelectValue placeholder="Ordenar por" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Mais Recentes</SelectItem>
+                <SelectItem value="price-asc">Menor Preço</SelectItem>
+                <SelectItem value="price-desc">Maior Preço</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-16">
-          {/* Minimal Sidebar Filters */}
-          <div className="w-full lg:w-48 space-y-12 sticky top-32 h-fit">
+          {/* Sidebar Filters */}
+          <div className="w-full lg:w-64 space-y-12 sticky top-32 h-fit bg-background z-10">
             {/* Categories */}
             <div>
-              <h3 className="font-mono text-xs uppercase tracking-widest mb-6 text-muted-foreground">Filtrar Por</h3>
-              <div className="space-y-4">
-                <button 
-                  onClick={() => setSelectedCategory('all')}
-                  className={`block font-display text-lg hover:text-muted-foreground transition-colors ${selectedCategory === 'all' ? 'text-foreground underline decoration-1 underline-offset-4' : 'text-muted-foreground'}`}
-                >
-                  Todos
-                </button>
+              <h3 className="font-mono text-xs uppercase tracking-widest mb-6 text-muted-foreground">Categorias</h3>
+              <div className="space-y-3">
                 {categories.map(cat => (
-                  <button 
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`block font-display text-lg hover:text-muted-foreground transition-colors capitalize ${selectedCategory === cat.id ? 'text-foreground underline decoration-1 underline-offset-4' : 'text-muted-foreground'}`}
-                  >
-                    {cat.name}
-                  </button>
+                  <div key={cat.id} className="flex items-center space-x-3">
+                    <Checkbox 
+                      id={`cat-${cat.id}`} 
+                      checked={selectedCategories.includes(cat.id)}
+                      onCheckedChange={() => toggleCategory(cat.id)}
+                      className="rounded-none"
+                    />
+                    <label
+                      htmlFor={`cat-${cat.id}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer capitalize"
+                    >
+                      {cat.name}
+                    </label>
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* Price Filter - Minimal */}
+            {/* Collections */}
+            <div>
+              <h3 className="font-mono text-xs uppercase tracking-widest mb-6 text-muted-foreground">Coleções</h3>
+              <div className="space-y-3">
+                {collections.map(col => (
+                  <div key={col.id} className="flex items-center space-x-3">
+                    <Checkbox 
+                      id={`col-${col.id}`} 
+                      checked={selectedCollections.includes(col.id)}
+                      onCheckedChange={() => toggleCollection(col.id)}
+                      className="rounded-none"
+                    />
+                    <label
+                      htmlFor={`col-${col.id}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {col.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Filter */}
             <div>
               <h3 className="font-mono text-xs uppercase tracking-widest mb-6 text-muted-foreground">Faixa de Preço</h3>
               <div className="space-y-6">
@@ -77,22 +166,23 @@ export default function Shop() {
                   className="py-4"
                 />
                 <div className="flex justify-between font-mono text-xs">
-                  <span>0</span>
-                  <span>50k+</span>
+                  <span>R$ {priceRange[0].toLocaleString()}</span>
+                  <span>R$ {priceRange[1].toLocaleString()}+</span>
                 </div>
               </div>
             </div>
+            
+            <Button variant="outline" onClick={clearFilters} className="w-full rounded-none uppercase tracking-widest font-mono text-xs">
+              Limpar Filtros
+            </Button>
           </div>
 
-          {/* Modern Masonry Grid */}
+          {/* Product Grid */}
           <div className="flex-1">
             {filteredProducts.length === 0 ? (
               <div className="py-20 text-center border-t border-b border-border">
                 <p className="font-display text-2xl mb-4">Nenhum artefato encontrado.</p>
-                <Button variant="link" onClick={() => {
-                  setSelectedCategory('all');
-                  setPriceRange([0, 50000]);
-                }} className="font-mono text-xs uppercase tracking-widest">
+                <Button variant="link" onClick={clearFilters} className="font-mono text-xs uppercase tracking-widest">
                   Limpar Filtros
                 </Button>
               </div>
@@ -105,8 +195,16 @@ export default function Shop() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
                     key={product.id} 
-                    className="group cursor-pointer"
+                    className="group cursor-pointer relative"
                   >
+                    {/* Quick Wishlist Action */}
+                    <button 
+                       onClick={(e) => { e.preventDefault(); toggleWishlist(product.id); }}
+                       className={`absolute top-4 right-4 z-20 p-2 transition-colors rounded-none ${wishlist.includes(product.id) ? 'bg-black text-white' : 'bg-white/80 backdrop-blur-sm hover:bg-black hover:text-white'}`}
+                    >
+                      <Heart className={`h-4 w-4 ${wishlist.includes(product.id) ? 'fill-white' : 'fill-none'}`} />
+                    </button>
+
                     <Link href={`/product/${product.id}`}>
                       <div className="relative aspect-[3/4] bg-secondary overflow-hidden mb-6">
                         <img 
