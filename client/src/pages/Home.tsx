@@ -42,11 +42,22 @@ export default function Home() {
           style={{ y: y1 }}
           className="absolute inset-0 opacity-60"
         >
-          <img 
-            src={heroImage} 
-            alt="Luxury Jewelry Model" 
-            className="w-full h-full object-cover grayscale contrast-125"
-          />
+          {branding.heroMediaType === 'video' ? (
+            <video 
+              src={branding.heroMediaUrl} 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              className="w-full h-full object-cover grayscale contrast-125"
+            />
+          ) : (
+            <img 
+              src={branding.heroMediaUrl} 
+              alt="Luxury Jewelry Model" 
+              className="w-full h-full object-cover grayscale contrast-125"
+            />
+          )}
         </motion.div>
         
         <div className="absolute inset-0 flex flex-col justify-between p-6 md:p-12 z-10 mix-blend-difference text-white pointer-events-none">
@@ -58,8 +69,12 @@ export default function Home() {
           </div>
           
           <div className="space-y-4">
-            <h1 className="font-display text-[12vw] leading-[0.8] font-bold tracking-tighter uppercase whitespace-pre-line">
-              {branding.heroTitle}
+            <h1 className="font-display text-[12vw] leading-[0.8] font-bold tracking-tighter uppercase">
+              {branding.heroTitle.split('\n').map((line, i) => (
+                <span key={i} className="block" style={{ marginLeft: i > 0 ? `${i * 10}vw` : 0 }}>
+                  {line}
+                </span>
+              ))}
             </h1>
           </div>
 

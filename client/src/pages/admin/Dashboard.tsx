@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Package, DollarSign, Users, TrendingUp, Edit, Trash, Plus, Search, LayoutGrid, Tags, ShoppingCart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -593,11 +594,13 @@ export default function Dashboard() {
                 
                 <div className="grid gap-2">
                   <Label>Título Principal (Hero)</Label>
-                  <Input 
+                  <Textarea 
                     value={brandingForm.heroTitle} 
                     onChange={(e) => setBrandingForm({...brandingForm, heroTitle: e.target.value})}
-                    className="rounded-none"
+                    className="rounded-none font-display text-xl"
+                    rows={2}
                   />
+                  <p className="text-[10px] text-muted-foreground">Use Enter para quebrar a linha e criar o efeito visual.</p>
                 </div>
 
                 <div className="grid gap-2">
@@ -607,6 +610,33 @@ export default function Dashboard() {
                     onChange={(e) => setBrandingForm({...brandingForm, heroSubtitle: e.target.value})}
                     className="rounded-none"
                   />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Mídia de Fundo (Hero)</Label>
+                  <Select 
+                    value={brandingForm.heroMediaType} 
+                    onValueChange={(val: 'image' | 'video') => setBrandingForm({...brandingForm, heroMediaType: val})}
+                  >
+                    <SelectTrigger className="rounded-none">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="image">Imagem</SelectItem>
+                      <SelectItem value="video">Vídeo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>URL da Mídia</Label>
+                  <Input 
+                    value={brandingForm.heroMediaUrl} 
+                    onChange={(e) => setBrandingForm({...brandingForm, heroMediaUrl: e.target.value})}
+                    className="rounded-none"
+                    placeholder="https://..."
+                  />
+                  <p className="text-[10px] text-muted-foreground">Cole a URL da imagem ou vídeo desejado.</p>
                 </div>
 
                 <div className="grid gap-2">

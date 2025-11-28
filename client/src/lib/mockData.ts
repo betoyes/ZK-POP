@@ -31,16 +31,18 @@ export interface Branding {
   companyName: string;
   heroTitle: string;
   heroSubtitle: string;
-  heroImage: string;
+  heroMediaType: 'image' | 'video';
+  heroMediaUrl: string;
   manifestoTitle: string;
   manifestoText: string;
 }
 
 export const initialBranding: Branding = {
   companyName: 'ZK REZK',
-  heroTitle: 'Herança Futura',
+  heroTitle: 'Herança\nFutura',
   heroSubtitle: 'Coleção 01',
-  heroImage: heroImage,
+  heroMediaType: 'image',
+  heroMediaUrl: heroImage,
   manifestoTitle: 'Redefinindo o Luxo',
   manifestoText: 'Acreditamos em joias que falam a linguagem da arquitetura moderna. Linhas limpas, formas ousadas e uma presença inegável.'
 };
