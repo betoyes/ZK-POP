@@ -69,7 +69,7 @@ export function Navbar() {
           {/* Right Actions */}
           <div className="flex items-center gap-6 z-50">
             <div className="hidden md:block font-mono text-xs tracking-widest mr-4">
-              EST. 2025
+              EST. 2026
             </div>
             
             <div className="flex items-center gap-4">
@@ -123,7 +123,7 @@ export function Navbar() {
                         ))}
                       </div>
                       <div className="font-mono text-xs tracking-widest text-white/50">
-                        ZK REZK JEWELRY © 2025
+                        ZK REZK JEWELRY © 2026
                       </div>
                     </div>
                   </SheetContent>

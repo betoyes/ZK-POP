@@ -17,7 +17,7 @@ export default function Journal() {
              </p>
            </div>
            <div className="font-mono text-xs mt-4 md:mt-0">
-             EDITORIAL 2025
+             EDITORIAL 2026
            </div>
         </div>
 

@@ -6,20 +6,20 @@ import earringsImage from '@assets/generated_images/pearl_earrings_product_shot.
 
 // Mock initial orders
 const initialOrders = [
-  { id: 'ORD-001', customer: 'Maria Silva', date: '2025-11-28', status: 'Entregue', total: 12500, items: 1 },
-  { id: 'ORD-002', customer: 'João Santos', date: '2025-11-27', status: 'Processando', total: 4200, items: 1 },
-  { id: 'ORD-003', customer: 'Ana Oliveira', date: '2025-11-26', status: 'Enviado', total: 8900, items: 2 },
-  { id: 'ORD-004', customer: 'Carlos Lima', date: '2025-11-25', status: 'Cancelado', total: 3800, items: 1 },
-  { id: 'ORD-005', customer: 'Beatriz Costa', date: '2025-11-24', status: 'Entregue', total: 25000, items: 3 },
+  { id: 'ORD-001', customer: 'Maria Silva', date: '2026-11-28', status: 'Entregue', total: 12500, items: 1 },
+  { id: 'ORD-002', customer: 'João Santos', date: '2026-11-27', status: 'Processando', total: 4200, items: 1 },
+  { id: 'ORD-003', customer: 'Ana Oliveira', date: '2026-11-26', status: 'Enviado', total: 8900, items: 2 },
+  { id: 'ORD-004', customer: 'Carlos Lima', date: '2026-11-25', status: 'Cancelado', total: 3800, items: 1 },
+  { id: 'ORD-005', customer: 'Beatriz Costa', date: '2026-11-24', status: 'Entregue', total: 25000, items: 3 },
 ];
 
 // Mock initial customers
 const initialCustomers = [
-  { id: 'CUST-001', name: 'Maria Silva', email: 'maria@email.com', orders: 5, totalSpent: 45000, lastOrder: '2025-11-28' },
-  { id: 'CUST-002', name: 'João Santos', email: 'joao@email.com', orders: 2, totalSpent: 8400, lastOrder: '2025-11-27' },
-  { id: 'CUST-003', name: 'Ana Oliveira', email: 'ana@email.com', orders: 3, totalSpent: 15600, lastOrder: '2025-11-26' },
-  { id: 'CUST-004', name: 'Carlos Lima', email: 'carlos@email.com', orders: 1, totalSpent: 3800, lastOrder: '2025-11-25' },
-  { id: 'CUST-005', name: 'Beatriz Costa', email: 'bia@email.com', orders: 8, totalSpent: 82000, lastOrder: '2025-11-24' },
+  { id: 'CUST-001', name: 'Maria Silva', email: 'maria@email.com', orders: 5, totalSpent: 45000, lastOrder: '2026-11-28' },
+  { id: 'CUST-002', name: 'João Santos', email: 'joao@email.com', orders: 2, totalSpent: 8400, lastOrder: '2026-11-27' },
+  { id: 'CUST-003', name: 'Ana Oliveira', email: 'ana@email.com', orders: 3, totalSpent: 15600, lastOrder: '2026-11-26' },
+  { id: 'CUST-004', name: 'Carlos Lima', email: 'carlos@email.com', orders: 1, totalSpent: 3800, lastOrder: '2026-11-25' },
+  { id: 'CUST-005', name: 'Beatriz Costa', email: 'bia@email.com', orders: 8, totalSpent: 82000, lastOrder: '2026-11-24' },
 ];
 
 // Mock initial posts
@@ -28,15 +28,15 @@ const initialPosts = [
     id: 1,
     title: "O Guia Definitivo de Diamantes",
     excerpt: "Entenda os 4 Cs e como escolher a pedra perfeita para sua joia eterna.",
-    date: "28 Nov 2025",
+    date: "28 Nov 2026",
     category: "Educação",
     image: ringImage
   },
   {
     id: 2,
-    title: "Tendências de Outono 2025",
+    title: "Tendências de Outono 2026",
     excerpt: "O retorno do ouro amarelo e design maximalista.",
-    date: "25 Nov 2025",
+    date: "25 Nov 2026",
     category: "Tendências",
     image: necklaceImage
   },
@@ -44,7 +44,7 @@ const initialPosts = [
     id: 3,
     title: "Cuidados com Suas Joias",
     excerpt: "Como manter o brilho e a integridade de suas peças por gerações.",
-    date: "20 Nov 2025",
+    date: "20 Nov 2026",
     category: "Care",
     image: earringsImage
   }

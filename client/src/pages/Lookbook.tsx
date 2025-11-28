@@ -35,7 +35,7 @@ export default function Lookbook() {
             LOOKBOOK
           </motion.h1>
           <p className="font-mono text-sm md:text-base uppercase tracking-[0.5em] text-white/80">
-            Coleção Outono/Inverno 2025
+            Coleção Outono/Inverno 2026
           </p>
         </div>
       </div>

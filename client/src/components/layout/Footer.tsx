@@ -50,10 +50,10 @@ export function Footer() {
         </div>
 
         <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-          <p>&copy; 2025 ZK REZK JEWELRY. TODOS OS DIREITOS RESERVADOS.</p>
+          <p>&copy; 2026 ZK REZK JEWELRY. TODOS OS DIREITOS RESERVADOS.</p>
           <div className="flex gap-8">
-            <a href="#" className="hover:text-foreground">Política de Privacidade</a>
-            <a href="#" className="hover:text-foreground">Termos de Uso</a>
+            <Link href="/privacy-policy" className="hover:text-foreground">Política de Privacidade</Link>
+            <Link href="/terms-of-use" className="hover:text-foreground">Termos de Uso</Link>
           </div>
         </div>
       </div>

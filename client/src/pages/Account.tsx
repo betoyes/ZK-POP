@@ -66,7 +66,7 @@ export default function Account() {
                     <div className="flex flex-col md:flex-row justify-between mb-6 pb-6 border-b border-border">
                       <div className="space-y-1">
                         <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest block">Pedido #ZK-8921</span>
-                        <span className="font-mono text-xs block">28 Nov, 2025</span>
+                        <span className="font-mono text-xs block">28 Nov, 2026</span>
                       </div>
                       <div className="mt-4 md:mt-0">
                         <span className="bg-black text-white px-3 py-1 font-mono text-[10px] uppercase tracking-widest">Em Processamento</span>

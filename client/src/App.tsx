@@ -23,6 +23,8 @@ import Wishlist from "@/pages/Wishlist";
 import Journal from "@/pages/Journal";
 import Lookbook from "@/pages/Lookbook";
 import Collections from "@/pages/Collections";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfUse from "@/pages/TermsOfUse";
 
 function Router() {
   return (
@@ -43,6 +45,8 @@ function Router() {
         <Route path="/wishlist" component={Wishlist} />
         <Route path="/journal" component={Journal} />
         <Route path="/lookbook" component={Lookbook} />
+        <Route path="/privacy-policy" component={PrivacyPolicy} />
+        <Route path="/terms-of-use" component={TermsOfUse} />
         <Route component={NotFound} />
       </Switch>
     </PageTransition>
