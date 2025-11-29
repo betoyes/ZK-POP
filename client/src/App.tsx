@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { CookieConsent } from "@/components/CookieConsent";
 import { ProductProvider } from "@/context/ProductContext";
+import { AuthProvider } from "@/context/AuthContext";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Shop from "@/pages/Shop";
@@ -61,16 +62,18 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <ProductProvider>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-grow">
-              <Router />
-            </main>
-            <Footer />
-            <CookieConsent />
-          </div>
-        </ProductProvider>
+        <AuthProvider>
+          <ProductProvider>
+            <div className="flex flex-col min-h-screen">
+              <Navbar />
+              <main className="flex-grow">
+                <Router />
+              </main>
+              <Footer />
+              <CookieConsent />
+            </div>
+          </ProductProvider>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

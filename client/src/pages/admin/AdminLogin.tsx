@@ -6,39 +6,52 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 import { Lock, ShieldAlert } from 'lucide-react';
+import { useState } from 'react';
 
 const formSchema = z.object({
-  email: z.string().email("Email inválido"),
+  username: z.string().min(1, "Usuário obrigatório"),
   password: z.string().min(1, "Senha obrigatória"),
 });
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { login, isAuthenticated } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Mock login
-    if (values.email === "admin@aurum.com" && values.password === "admin") {
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    setLocation('/admin/dashboard');
+    return null;
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    try {
+      await login(values.username, values.password);
       toast({
         title: "Acesso concedido",
-        description: "Redirecionando para o painel...",
+        description: "Bem-vindo ao painel administrativo",
       });
-      setTimeout(() => setLocation('/admin/dashboard'), 1000);
-    } else {
+      setLocation('/admin/dashboard');
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Acesso negado",
-        description: "Credenciais inválidas.",
+        description: error.message || "Credenciais inválidas.",
       });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -59,9 +72,9 @@ export default function AdminLogin() {
         <div className="mb-8 p-4 border border-white/10 bg-white/5 flex items-start gap-3">
           <ShieldAlert className="h-5 w-5 text-white/70 shrink-0 mt-0.5" />
           <div className="space-y-1">
-             <p className="font-mono text-[10px] uppercase tracking-widest text-white/70 font-bold">Credenciais Demo</p>
-             <p className="font-mono text-xs text-white/50">User: <span className="text-white select-all">admin@aurum.com</span></p>
-             <p className="font-mono text-xs text-white/50">Pass: <span className="text-white select-all">admin</span></p>
+             <p className="font-mono text-[10px] uppercase tracking-widest text-white/70 font-bold">Credenciais Padrão</p>
+             <p className="font-mono text-xs text-white/50">Usuário: <span className="text-white select-all">admin</span></p>
+             <p className="font-mono text-xs text-white/50">Senha: <span className="text-white select-all">admin123</span></p>
           </div>
         </div>
 
@@ -69,12 +82,12 @@ export default function AdminLogin() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="email"
+              name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-mono text-xs uppercase tracking-widest text-white/70">Email</FormLabel>
+                  <FormLabel className="font-mono text-xs uppercase tracking-widest text-white/70">Usuário</FormLabel>
                   <FormControl>
-                    <Input placeholder="admin@aurum.com" {...field} className="rounded-none border-white/20 h-12 bg-transparent text-white placeholder:text-white/20 focus:border-white" />
+                    <Input placeholder="admin" {...field} className="rounded-none border-white/20 h-12 bg-transparent text-white placeholder:text-white/20 focus:border-white" data-testid="input-username" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -87,15 +100,15 @@ export default function AdminLogin() {
                 <FormItem>
                   <FormLabel className="font-mono text-xs uppercase tracking-widest text-white/70">Senha</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••" {...field} className="rounded-none border-white/20 h-12 bg-transparent text-white placeholder:text-white/20 focus:border-white" />
+                    <Input type="password" placeholder="••••••" {...field} className="rounded-none border-white/20 h-12 bg-transparent text-white placeholder:text-white/20 focus:border-white" data-testid="input-password" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             
-            <Button type="submit" className="w-full rounded-none h-12 bg-white text-black hover:bg-white/90 uppercase tracking-widest font-mono text-xs mt-4">
-              Entrar no Painel
+            <Button type="submit" disabled={isLoading} className="w-full rounded-none h-12 bg-white text-black hover:bg-white/90 uppercase tracking-widest font-mono text-xs mt-4" data-testid="button-login">
+              {isLoading ? 'Autenticando...' : 'Entrar no Painel'}
             </Button>
           </form>
         </Form>
