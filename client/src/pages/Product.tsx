@@ -114,7 +114,7 @@ export default function Product() {
             </div>
 
             <p className="text-lg leading-relaxed mb-12 text-muted-foreground font-light">
-              {product.description} Criado para a era moderna, esta peça exemplifica o equilíbrio entre matéria-prima e design refinado.
+              {product.description}
             </p>
 
             <div className="space-y-6 mb-16">
