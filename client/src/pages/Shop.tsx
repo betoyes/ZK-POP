@@ -76,7 +76,7 @@ export default function Shop() {
       <div className="container mx-auto px-6 md:px-12 pb-24">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-border pb-8">
           <div>
-             <h1 className="font-display text-6xl md:text-8xl font-bold tracking-tighter mb-4">Arquivo</h1>
+             <h1 className="font-display text-6xl md:text-8xl font-bold tracking-tighter mb-4">Store</h1>
              {searchQuery && (
                <p className="font-mono text-sm text-muted-foreground mb-2">
                  Resultados para "{searchQuery}"
