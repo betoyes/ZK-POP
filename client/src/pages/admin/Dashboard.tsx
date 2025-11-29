@@ -30,7 +30,8 @@ export default function Dashboard() {
     addCategory, deleteCategory,
     addCollection, deleteCollection,
     posts, addPost, deletePost, updatePost,
-    updateOrder, branding, updateBranding
+    updateOrder, branding, updateBranding,
+    subscribers
   } = useProducts();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -342,6 +343,7 @@ export default function Dashboard() {
             <TabsTrigger value="collections" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:shadow-none px-0 py-4 font-mono text-xs uppercase tracking-widest">Coleções</TabsTrigger>
             <TabsTrigger value="journal" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:shadow-none px-0 py-4 font-mono text-xs uppercase tracking-widest">Journal</TabsTrigger>
             <TabsTrigger value="customers" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:shadow-none px-0 py-4 font-mono text-xs uppercase tracking-widest">Clientes</TabsTrigger>
+            <TabsTrigger value="newsletter" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:shadow-none px-0 py-4 font-mono text-xs uppercase tracking-widest">Newsletter</TabsTrigger>
             <TabsTrigger value="branding" className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:shadow-none px-0 py-4 font-mono text-xs uppercase tracking-widest">Branding</TabsTrigger>
           </TabsList>
 
@@ -987,6 +989,34 @@ export default function Dashboard() {
               </DialogContent>
             </Dialog>
 
+          </TabsContent>
+
+          {/* NEWSLETTER TAB */}
+          <TabsContent value="newsletter" className="space-y-6">
+             <div className="border border-border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent border-b border-border">
+                    <TableHead className="font-mono text-xs uppercase tracking-widest text-muted-foreground h-12">ID</TableHead>
+                    <TableHead className="font-mono text-xs uppercase tracking-widest text-muted-foreground h-12">Email</TableHead>
+                    <TableHead className="font-mono text-xs uppercase tracking-widest text-muted-foreground h-12">Data</TableHead>
+                    <TableHead className="font-mono text-xs uppercase tracking-widest text-muted-foreground h-12 text-right">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {subscribers.map((sub) => (
+                    <TableRow key={sub.id} className="hover:bg-secondary/30 border-b border-border transition-colors">
+                      <TableCell className="font-mono text-xs">{sub.id}</TableCell>
+                      <TableCell className="font-display text-base">{sub.email}</TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">{sub.date}</TableCell>
+                      <TableCell className="font-mono text-xs text-right uppercase">
+                        <span className="bg-black text-white px-2 py-1 text-[10px]">{sub.status}</span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </TabsContent>
 
           {/* BRANDING TAB */}

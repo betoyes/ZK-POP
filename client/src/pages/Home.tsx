@@ -10,15 +10,28 @@ import heroImage from '@assets/generated_images/luxury_jewelry_hero_image_with_m
 import necklaceImage from '@assets/generated_images/gold_necklace_product_shot.png';
 import campaignVideo from '@assets/generated_videos/b&w_jewelry_fashion_b-roll.mp4';
 import useEmblaCarousel from 'embla-carousel-react';
+import { useToast } from '@/hooks/use-toast';
 
 import { testimonials } from '@/lib/mockData';
 
 export default function Home() {
-  const { products, branding } = useProducts();
+  const { products, branding, addSubscriber } = useProducts();
+  const { toast } = useToast();
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
   const y2 = useTransform(scrollY, [0, 500], [0, -100]);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [email, setEmail] = useState('');
+
+  const handleSubscribe = () => {
+    if (!email || !email.includes('@')) {
+      toast({ title: "Erro", description: "Por favor, insira um email válido.", variant: "destructive" });
+      return;
+    }
+    addSubscriber(email);
+    setEmail('');
+    toast({ title: "Bem-vindo(a)", description: "Você foi adicionado(a) à nossa lista exclusiva." });
+  };
   
   // Carousel setup
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
@@ -279,8 +292,15 @@ export default function Home() {
               type="email" 
               placeholder="SEU EMAIL" 
               className="bg-transparent w-full py-4 focus:outline-none font-mono text-sm placeholder:text-white/30"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-            <button className="font-mono text-xs uppercase tracking-widest hover:text-white/70">Inscrever</button>
+            <button 
+              onClick={handleSubscribe}
+              className="font-mono text-xs uppercase tracking-widest hover:text-white/70"
+            >
+              Inscrever
+            </button>
           </div>
         </div>
       </section>

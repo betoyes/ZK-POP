@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Product, products as initialProducts, Category, categories as initialCategories, Collection, collections as initialCollections, Branding, initialBranding, JournalPost, initialPosts } from '@/lib/mockData';
+import { Product, products as initialProducts, Category, categories as initialCategories, Collection, collections as initialCollections, Branding, initialBranding, JournalPost, initialPosts, Subscriber, initialSubscribers } from '@/lib/mockData';
 import ringImage from '@assets/generated_images/diamond_ring_product_shot.png';
 
 // Mock initial orders
@@ -29,6 +29,7 @@ interface ProductContextType {
   posts: JournalPost[];
   wishlist: number[];
   branding: Branding;
+  subscribers: Subscriber[];
   
   addProduct: (product: Omit<Product, 'id'>) => void;
   updateProduct: (id: number, product: Partial<Product>) => void;
@@ -43,6 +44,8 @@ interface ProductContextType {
   addPost: (post: Omit<JournalPost, 'id' | 'date'>) => void;
   deletePost: (id: number) => void;
   updatePost: (id: number, post: Partial<JournalPost>) => void;
+
+  addSubscriber: (email: string) => void;
   
   updateOrder: (id: string, status: string) => void;
   toggleWishlist: (productId: number) => void;
@@ -60,10 +63,18 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   const [posts, setPosts] = useState<JournalPost[]>(initialPosts);
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [branding, setBranding] = useState<Branding>(initialBranding);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>(initialSubscribers);
 
   // Branding
   const updateBranding = (newBranding: Partial<Branding>) => {
     setBranding(prev => ({ ...prev, ...newBranding }));
+  };
+
+  // Subscribers
+  const addSubscriber = (email: string) => {
+    const id = Math.max(...subscribers.map(s => s.id), 0) + 1;
+    const date = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    setSubscribers([...subscribers, { id, email, date, status: 'active' }]);
   };
 
   // Products
@@ -137,11 +148,12 @@ export function ProductProvider({ children }: { children: ReactNode }) {
 
   return (
     <ProductContext.Provider value={{ 
-      products, categories, collections, orders, customers, posts, wishlist,
+      products, categories, collections, orders, customers, posts, wishlist, subscribers,
       addProduct, updateProduct, deleteProduct,
       addCategory, deleteCategory,
       addCollection, deleteCollection,
       addPost, deletePost, updatePost,
+      addSubscriber,
       updateOrder, toggleWishlist,
       branding, updateBranding
     }}>
