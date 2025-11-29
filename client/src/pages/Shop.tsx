@@ -73,7 +73,6 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-background pt-32">
-      
       <div className="container mx-auto px-6 md:px-12 pb-24">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-border pb-8">
           <div>
@@ -83,9 +82,7 @@ export default function Shop() {
                  Resultados para "{searchQuery}"
                </p>
              )}
-             <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest max-w-md">
-               Seleção curada de artefatos para o indivíduo moderno.
-             </p>
+             <p className="font-mono text-sm text-muted-foreground uppercase tracking-widest max-w-md">Seleção curada de jóias para pessoas com bom gosto.</p>
           </div>
           <div className="flex flex-col items-end gap-4">
             <div className="font-mono text-xs mb-2">
