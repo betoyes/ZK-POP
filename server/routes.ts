@@ -655,7 +655,13 @@ export async function registerRoutes(
 
   app.post("/api/subscribers", async (req, res, next) => {
     try {
-      const data = insertSubscriberSchema.parse(req.body);
+      // Add date and name defaults before validation
+      const bodyWithDefaults = {
+        ...req.body,
+        date: req.body.date || new Date().toISOString().split('T')[0],
+        name: req.body.name || '',
+      };
+      const data = insertSubscriberSchema.parse(bodyWithDefaults);
       
       // Check if email already exists
       const existing = await storage.getSubscriberByEmail(data.email);
