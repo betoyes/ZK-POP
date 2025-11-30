@@ -20,7 +20,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isAdmin } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -30,9 +30,8 @@ export default function Login() {
     },
   });
 
-  // Redirect if already authenticated
   if (isAuthenticated) {
-    setLocation('/account');
+    setLocation(isAdmin ? '/admin/dashboard' : '/account');
     return null;
   }
 
@@ -40,19 +39,21 @@ export default function Login() {
     setIsLoading(true);
     try {
       if (isLogin) {
-        // Try to login with email as username
-        await login(values.email, values.password);
+        const user = await login(values.email, values.password);
         toast({
           title: "Bem-vindo de volta",
           description: "Login efetuado com sucesso.",
         });
-        setLocation('/account');
+        if (user.role === 'admin') {
+          setLocation('/admin/dashboard');
+        } else {
+          setLocation('/account');
+        }
       } else {
-        // Registration - create new customer account
         const response = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: values.email, password: values.password }),
+          body: JSON.stringify({ username: values.email, password: values.password, role: 'customer' }),
         });
         
         if (!response.ok) {
@@ -60,7 +61,6 @@ export default function Login() {
           throw new Error(error.message || 'Erro ao criar conta');
         }
         
-        // Auto login after registration
         await login(values.email, values.password);
         toast({
           title: "Conta criada",

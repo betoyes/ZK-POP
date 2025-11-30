@@ -18,7 +18,7 @@ const formSchema = z.object({
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isAdmin, logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -29,8 +29,7 @@ export default function AdminLogin() {
     },
   });
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
+  if (isAuthenticated && isAdmin) {
     setLocation('/admin/dashboard');
     return null;
   }
@@ -38,7 +37,18 @@ export default function AdminLogin() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await login(values.email, values.password);
+      const user = await login(values.email, values.password);
+      
+      if (user.role !== 'admin') {
+        await logout();
+        toast({
+          variant: "destructive",
+          title: "Acesso negado",
+          description: "Esta área é restrita a administradores.",
+        });
+        return;
+      }
+      
       toast({
         title: "Acesso concedido",
         description: "Bem-vindo ao painel administrativo",
