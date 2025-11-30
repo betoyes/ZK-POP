@@ -50,12 +50,26 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       fetch('/api/categories').then(r => r.json()).then(data => setCategories(data || [])).catch(() => setCategories([])),
       fetch('/api/collections').then(r => r.json()).then(data => setCollections(data || [])).catch(() => setCollections([])),
       fetch('/api/journal').then(r => r.json()).then(data => setPosts(data || [])).catch(() => setPosts([])),
+      fetch('/api/branding').then(r => r.json()).then(data => setBranding(data || initialBranding)).catch(() => setBranding(initialBranding)),
     ]).catch(err => console.error('Failed to load initial data:', err));
   }, []);
 
   // Branding
-  const updateBranding = (newBranding: Partial<Branding>) => {
-    setBranding(prev => ({ ...prev, ...newBranding }));
+  const updateBranding = async (newBranding: Partial<Branding>) => {
+    try {
+      const response = await fetch('/api/branding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBranding)
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setBranding(data);
+      }
+    } catch (err) {
+      console.error('Failed to update branding:', err);
+      setBranding(prev => ({ ...prev, ...newBranding }));
+    }
   };
 
   // Products

@@ -60,8 +60,8 @@ export const initialSubscribers: Subscriber[] = [
 
 export const initialBranding: Branding = {
   companyName: 'ZK REZK',
-  heroTitle: 'Herança\nFutura',
-  heroSubtitle: 'Coleção 01',
+  heroTitle: 'Luxo\nSilencioso',
+  heroSubtitle: 'Elegância que não grita, mas impõe',
   heroMediaType: 'image',
   heroMediaUrl: heroImage,
   manifestoTitle: 'Redefinindo o Luxo',

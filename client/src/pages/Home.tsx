@@ -117,13 +117,13 @@ export default function Home() {
         
         <div className="absolute inset-0 flex flex-col justify-between p-6 md:p-12 z-10 mix-blend-difference text-white pointer-events-none">
           <div className="flex justify-between items-start">
-            <span className="font-mono text-xs tracking-[0.5em] uppercase">{branding.heroSubtitle}</span>
+            <span className="font-mono text-xs tracking-[0.5em] uppercase"></span>
             <span className="font-mono text-xs tracking-[0.5em] uppercase text-right hidden md:block">
               São Paulo<br/>Paris<br/>Tóquio
             </span>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-6">
             <h1 className="font-display text-[12vw] leading-[0.8] font-bold tracking-tighter uppercase">
               {branding.heroTitle.split('\n').map((line, i) => (
                 <span key={i} className="block" style={{ marginLeft: i > 0 ? `${i * 10}vw` : 0 }}>
@@ -131,6 +131,9 @@ export default function Home() {
                 </span>
               ))}
             </h1>
+            <p className="font-mono text-xs tracking-[0.3em] uppercase opacity-80 max-w-md font-light">
+              {branding.heroSubtitle}
+            </p>
           </div>
 
           <div className="flex justify-between items-end pointer-events-auto">
