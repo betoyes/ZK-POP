@@ -650,12 +650,16 @@ export default function Dashboard() {
           {/* OVERVIEW TAB */}
           <TabsContent value="overview" className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {[
-                { title: "Receita Total", value: "R$ 452.318,90", change: "+20.1%", icon: DollarSign },
-                { title: "Vendas", value: `+${orders.length}`, change: "+12%", icon: TrendingUp },
-                { title: "Produtos", value: products.length.toString(), change: "+2 novos", icon: Package },
-                { title: "Clientes", value: customers.length.toString(), change: "+5 novos", icon: Users },
-              ].map((stat, i) => (
+              {(() => {
+                const totalRevenue = orders.reduce((sum: number, order: any) => sum + (order.total || 0), 0);
+                const formattedRevenue = `R$ ${(totalRevenue / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                return [
+                  { title: "Receita Total", value: formattedRevenue, change: orders.length > 0 ? "+0%" : "-", icon: DollarSign },
+                  { title: "Vendas", value: `+${orders.length}`, change: "+0%", icon: TrendingUp },
+                  { title: "Produtos", value: products.length.toString(), change: "+0", icon: Package },
+                  { title: "Clientes", value: customers.length.toString(), change: "+0", icon: Users },
+                ];
+              })().map((stat, i) => (
                 <div key={i} className="border border-border p-6 hover:border-black transition-colors group bg-card">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">{stat.title}</h3>
