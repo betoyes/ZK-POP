@@ -115,15 +115,22 @@ export default function Home() {
           )}
         </motion.div>
         
+        {/* Cidades - Lateral direita centralizada */}
+        <div className="absolute right-6 md:right-12 top-1/2 -translate-y-1/2 z-40 hidden md:block mix-blend-difference">
+          <div className="flex flex-col items-end gap-3">
+            <span className="font-mono text-[10px] tracking-[0.4em] uppercase text-white/80">São Paulo</span>
+            <span className="font-mono text-[10px] tracking-[0.4em] uppercase text-white/80">Paris</span>
+            <span className="font-mono text-[10px] tracking-[0.4em] uppercase text-white/80">Tóquio</span>
+          </div>
+        </div>
+        
         <div className="absolute inset-0 flex flex-col justify-between p-6 md:p-12 z-50 mix-blend-difference text-white pointer-events-none">
           <div className="flex justify-between items-start">
             <span className="font-mono text-xs tracking-[0.5em] uppercase"></span>
-            <span className="hidden md:flex flex-col items-end gap-2">
-              <span className="font-mono text-[10px] tracking-[0.5em] uppercase">Est. 2026</span>
-            </span>
+            <span></span>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-6">
             <h1 className="font-display text-[12vw] leading-[0.8] font-bold tracking-tighter uppercase">
               {branding.heroTitle.split('\n').map((line, i) => (
                 <span key={i} className="block">
@@ -131,7 +138,7 @@ export default function Home() {
                 </span>
               ))}
             </h1>
-            <p className="font-mono text-xs tracking-[0.3em] uppercase opacity-90 font-light">
+            <p className="font-mono text-sm md:text-base tracking-[0.2em] uppercase opacity-100 font-light">
               {branding.heroSubtitle}
             </p>
           </div>
