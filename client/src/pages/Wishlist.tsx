@@ -5,7 +5,7 @@ import { ArrowRight, Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Wishlist() {
-  const { products, wishlist, toggleWishlist } = useProducts();
+  const { products, collections, wishlist, toggleWishlist } = useProducts();
   
   const wishlistProducts = products.filter(p => wishlist.includes(p.id));
 
@@ -61,7 +61,7 @@ export default function Wishlist() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-display text-xl leading-none mb-2 group-hover:underline underline-offset-4 decoration-1">{product.name}</h3>
-                      <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{product.collection}</span>
+                      <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{collections.find(c => c.id === product.collectionId)?.name || ''}</span>
                     </div>
                     <p className="font-mono text-sm">R$ {product.price.toLocaleString('pt-BR')}</p>
                   </div>

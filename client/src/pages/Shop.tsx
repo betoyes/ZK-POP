@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Heart } from 'lucide-react';
 
 export default function Shop() {
-  const { products, collections, wishlist, toggleWishlist } = useProducts();
+  const { products, categories, collections, wishlist, toggleWishlist } = useProducts();
   const [location] = useLocation();
   const urlParams = new URLSearchParams(window.location.search);
   const initialCategory = urlParams.get('category') || 'all';
@@ -34,11 +34,15 @@ export default function Shop() {
       return false;
     }
 
-    // Category Filter
-    const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category);
+    // Category Filter - compare by slug or ID
+    const productCategory = categories.find(c => c.id === product.categoryId);
+    const categoryMatch = selectedCategories.length === 0 || 
+      (productCategory && selectedCategories.includes(productCategory.slug || String(productCategory.id)));
     
-    // Collection Filter
-    const collectionMatch = selectedCollections.length === 0 || selectedCollections.includes(product.collection);
+    // Collection Filter - compare by slug or ID
+    const productCollection = collections.find(c => c.id === product.collectionId);
+    const collectionMatch = selectedCollections.length === 0 || 
+      (productCollection && selectedCollections.includes(productCollection.slug || String(productCollection.id)));
     
     // Price Filter
     const priceMatch = product.price >= priceRange[0] && product.price <= priceRange[1];
@@ -112,8 +116,8 @@ export default function Shop() {
                   <div key={cat.id} className="flex items-center space-x-3">
                     <Checkbox 
                       id={`cat-${cat.id}`} 
-                      checked={selectedCategories.includes(cat.id)}
-                      onCheckedChange={() => toggleCategory(cat.id)}
+                      checked={selectedCategories.includes(cat.slug || String(cat.id))}
+                      onCheckedChange={() => toggleCategory(cat.slug || String(cat.id))}
                       className="rounded-none"
                     />
                     <label
@@ -135,8 +139,8 @@ export default function Shop() {
                   <div key={col.id} className="flex items-center space-x-3">
                     <Checkbox 
                       id={`col-${col.id}`} 
-                      checked={selectedCollections.includes(col.id)}
-                      onCheckedChange={() => toggleCollection(col.id)}
+                      checked={selectedCollections.includes(col.slug || String(col.id))}
+                      onCheckedChange={() => toggleCollection(col.slug || String(col.id))}
                       className="rounded-none"
                     />
                     <label
@@ -230,7 +234,7 @@ export default function Shop() {
                       <div className="flex justify-between items-start">
                         <div>
                           <h3 className="font-display text-xl leading-none mb-2 group-hover:underline underline-offset-4 decoration-1">{product.name}</h3>
-                          <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{product.collection}</span>
+                          <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">{collections.find(c => c.id === product.collectionId)?.name || ''}</span>
                         </div>
                         <p className="font-mono text-sm">R$ {product.price.toLocaleString('pt-BR')}</p>
                       </div>

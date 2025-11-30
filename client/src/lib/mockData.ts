@@ -11,21 +11,23 @@ export interface Product {
   image: string;
   imageColor?: string;
   gallery?: string[];
-  category: string;
-  collection: string;
+  categoryId?: number;
+  collectionId?: number;
   specs?: string[];
   bestsellerOrder?: number;
   isNew?: boolean;
 }
 
 export interface Category {
-  id: string;
+  id: number;
+  slug?: string;
   name: string;
   description: string;
 }
 
 export interface Collection {
-  id: string;
+  id: number;
+  slug?: string;
   name: string;
   description: string;
   image: string;

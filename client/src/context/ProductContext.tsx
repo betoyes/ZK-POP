@@ -12,23 +12,23 @@ interface ProductContextType {
   wishlist: number[];
   branding: Branding;
   
-  addProduct: (product: Omit<Product, 'id'>) => void;
-  updateProduct: (id: number, product: Partial<Product>) => void;
-  deleteProduct: (id: number) => void;
+  addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+  updateProduct: (id: number, product: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: number) => Promise<void>;
   
-  addCategory: (category: Omit<Category, 'id'>) => void;
-  deleteCategory: (id: string) => void;
+  addCategory: (category: Omit<Category, 'id'>) => Promise<void>;
+  deleteCategory: (id: number) => Promise<void>;
   
-  addCollection: (collection: Omit<Collection, 'id'>) => void;
-  deleteCollection: (id: string) => void;
+  addCollection: (collection: Omit<Collection, 'id'>) => Promise<void>;
+  deleteCollection: (id: number) => Promise<void>;
   
-  addPost: (post: Omit<JournalPost, 'id' | 'date'>) => void;
-  deletePost: (id: number) => void;
-  updatePost: (id: number, post: Partial<JournalPost>) => void;
+  addPost: (post: Omit<JournalPost, 'id' | 'date'>) => Promise<void>;
+  deletePost: (id: number) => Promise<void>;
+  updatePost: (id: number, post: Partial<JournalPost>) => Promise<void>;
   
   updateOrder: (id: string, status: string) => void;
   toggleWishlist: (productId: number) => void;
-  updateBranding: (newBranding: Partial<Branding>) => void;
+  updateBranding: (newBranding: Partial<Branding>) => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -72,59 +72,193 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Products
-  const addProduct = (newProduct: Omit<Product, 'id'>) => {
-    const id = Math.max(...products.map(p => p.id), 0) + 1;
-    setProducts([...products, { ...newProduct, id }]);
+  // Products - now persisted to backend
+  const addProduct = async (newProduct: Omit<Product, 'id'>) => {
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newProduct)
+      });
+      if (response.ok) {
+        const product = await response.json();
+        setProducts(prev => [...prev, product]);
+      } else {
+        console.error('Failed to add product:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to add product:', err);
+    }
   };
 
-  const updateProduct = (id: number, updatedFields: Partial<Product>) => {
-    setProducts(products.map(p => (p.id === id ? { ...p, ...updatedFields } : p)));
+  const updateProduct = async (id: number, updatedFields: Partial<Product>) => {
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(updatedFields)
+      });
+      if (response.ok) {
+        const updated = await response.json();
+        setProducts(prev => prev.map(p => (p.id === id ? updated : p)));
+      } else {
+        console.error('Failed to update product:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to update product:', err);
+    }
   };
 
-  const deleteProduct = (id: number) => {
-    setProducts(products.filter(p => p.id !== id));
+  const deleteProduct = async (id: number) => {
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        setProducts(prev => prev.filter(p => p.id !== id));
+      } else {
+        console.error('Failed to delete product:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to delete product:', err);
+    }
   };
 
-  // Categories
-  const addCategory = (newCategory: Omit<Category, 'id'>) => {
-    const id = newCategory.name.toLowerCase().replace(/\s+/g, '-');
-    setCategories([...categories, { ...newCategory, id }]);
+  // Categories - now persisted to backend
+  const addCategory = async (newCategory: Omit<Category, 'id'>) => {
+    try {
+      const slug = newCategory.name.toLowerCase().replace(/\s+/g, '-');
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...newCategory, slug })
+      });
+      if (response.ok) {
+        const category = await response.json();
+        setCategories(prev => [...prev, category]);
+      } else {
+        console.error('Failed to add category:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to add category:', err);
+    }
   };
 
-  const deleteCategory = (id: string) => {
-    setCategories(categories.filter(c => c.id !== id));
+  const deleteCategory = async (id: number) => {
+    try {
+      const response = await fetch(`/api/categories/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        setCategories(prev => prev.filter(c => c.id !== id));
+      } else {
+        console.error('Failed to delete category:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to delete category:', err);
+    }
   };
 
-  // Collections
-  const addCollection = (newCollection: Omit<Collection, 'id'>) => {
-    const id = newCollection.name.toLowerCase().replace(/\s+/g, '-');
-    // Use a placeholder image if none provided (mock behavior)
-    const collectionWithImage = { 
-      ...newCollection, 
-      id,
-      image: newCollection.image || ringImage 
-    };
-    setCollections([...collections, collectionWithImage]);
+  // Collections - now persisted to backend
+  const addCollection = async (newCollection: Omit<Collection, 'id'>) => {
+    try {
+      const slug = newCollection.name.toLowerCase().replace(/\s+/g, '-');
+      const response = await fetch('/api/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ 
+          ...newCollection, 
+          slug,
+          image: newCollection.image || ringImage 
+        })
+      });
+      if (response.ok) {
+        const collection = await response.json();
+        setCollections(prev => [...prev, collection]);
+      } else {
+        console.error('Failed to add collection:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to add collection:', err);
+    }
   };
 
-  const deleteCollection = (id: string) => {
-    setCollections(collections.filter(c => c.id !== id));
+  const deleteCollection = async (id: number) => {
+    try {
+      const response = await fetch(`/api/collections/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        setCollections(prev => prev.filter(c => c.id !== id));
+      } else {
+        console.error('Failed to delete collection:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to delete collection:', err);
+    }
   };
   
-  // Posts
-  const addPost = (newPost: Omit<JournalPost, 'id' | 'date'>) => {
-    const id = Math.max(...posts.map(p => p.id), 0) + 1;
-    const date = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
-    setPosts([...posts, { ...newPost, id, date }]);
+  // Posts - now persisted to backend
+  const addPost = async (newPost: Omit<JournalPost, 'id' | 'date'>) => {
+    try {
+      const date = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+      const response = await fetch('/api/journal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...newPost, date })
+      });
+      if (response.ok) {
+        const post = await response.json();
+        setPosts(prev => [...prev, post]);
+      } else {
+        console.error('Failed to add post:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to add post:', err);
+    }
   };
 
-  const deletePost = (id: number) => {
-    setPosts(posts.filter(p => p.id !== id));
+  const deletePost = async (id: number) => {
+    try {
+      const response = await fetch(`/api/journal/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        setPosts(prev => prev.filter(p => p.id !== id));
+      } else {
+        console.error('Failed to delete post:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to delete post:', err);
+    }
   };
 
-  const updatePost = (id: number, updatedFields: Partial<JournalPost>) => {
-    setPosts(posts.map(p => (p.id === id ? { ...p, ...updatedFields } : p)));
+  const updatePost = async (id: number, updatedFields: Partial<JournalPost>) => {
+    try {
+      const response = await fetch(`/api/journal/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(updatedFields)
+      });
+      if (response.ok) {
+        const updated = await response.json();
+        setPosts(prev => prev.map(p => (p.id === id ? updated : p)));
+      } else {
+        console.error('Failed to update post:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to update post:', err);
+    }
   };
 
   // Orders

@@ -317,12 +317,15 @@ export default function Dashboard() {
       return;
     }
 
+    const selectedCategory = categories.find(c => String(c.id) === formData.category);
+    const selectedCollection = collections.find(c => String(c.id) === formData.collection);
+
     addProduct({
       name: formData.name,
       price: parsePriceToNumber(formData.price),
       description: formData.description,
-      category: formData.category,
-      collection: formData.collection || 'eternal',
+      categoryId: selectedCategory ? selectedCategory.id : undefined,
+      collectionId: selectedCollection ? selectedCollection.id : undefined,
       image: formData.image || getMockImage(formData.category),
       imageColor: formData.imageColor || formData.image || getMockImage(formData.category),
       gallery: formData.gallery,
@@ -339,12 +342,15 @@ export default function Dashboard() {
   const handleEdit = () => {
     if (!currentProduct) return;
 
+    const selectedCategory = categories.find(c => String(c.id) === formData.category);
+    const selectedCollection = collections.find(c => String(c.id) === formData.collection);
+
     updateProduct(currentProduct.id, {
       name: formData.name,
       price: parsePriceToNumber(formData.price),
       description: formData.description,
-      category: formData.category,
-      collection: formData.collection,
+      categoryId: selectedCategory ? selectedCategory.id : undefined,
+      collectionId: selectedCollection ? selectedCollection.id : undefined,
       image: formData.image,
       imageColor: formData.imageColor,
       gallery: formData.gallery,
@@ -377,8 +383,8 @@ export default function Dashboard() {
       name: product.name,
       price: formatPriceForDisplay(product.price),
       description: product.description,
-      category: product.category,
-      collection: product.collection,
+      category: product.categoryId ? String(product.categoryId) : '',
+      collection: product.collectionId ? String(product.collectionId) : '',
       image: product.image,
       imageColor: product.imageColor || product.image,
       gallery: product.gallery || [],
@@ -404,25 +410,25 @@ export default function Dashboard() {
   };
 
   // Category Handlers
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!catFormData.name) return;
     
-    // Create category
-    addCategory({ name: catFormData.name, description: catFormData.description });
+    await addCategory({ name: catFormData.name, description: catFormData.description });
     
-    // Update selected products to this category
-    const newCategoryId = catFormData.name.toLowerCase().replace(/\s+/g, '-');
-    selectedProductIds.forEach(pid => {
-        updateProduct(pid, { category: newCategoryId });
-    });
+    const newCategory = categories.find(c => c.name === catFormData.name);
+    if (newCategory && selectedProductIds.length > 0) {
+      for (const pid of selectedProductIds) {
+        await updateProduct(pid, { categoryId: newCategory.id });
+      }
+    }
 
     setIsAddCatOpen(false);
     setCatFormData({ name: '', description: '' });
     setSelectedProductIds([]);
-    toast({ title: "Sucesso", description: "Categoria adicionada e produtos vinculados" });
+    toast({ title: "Sucesso", description: "Categoria adicionada" + (selectedProductIds.length > 0 ? " e produtos vinculados" : "") });
   };
 
-  const handleDeleteCategory = (id: string) => {
+  const handleDeleteCategory = (id: number) => {
     if (confirm('Excluir categoria?')) {
       deleteCategory(id);
       toast({ title: "Sucesso", description: "Categoria removida" });
@@ -430,24 +436,25 @@ export default function Dashboard() {
   };
 
   // Collection Handlers
-  const handleAddCollection = () => {
+  const handleAddCollection = async () => {
     if (!colFormData.name) return;
     
-    addCollection({ name: colFormData.name, description: colFormData.description, image: colFormData.image });
+    await addCollection({ name: colFormData.name, description: colFormData.description, image: colFormData.image });
     
-    // Update selected products to this collection
-    const newCollectionId = colFormData.name.toLowerCase().replace(/\s+/g, '-');
-    selectedProductIds.forEach(pid => {
-        updateProduct(pid, { collection: newCollectionId });
-    });
+    const newCollection = collections.find(c => c.name === colFormData.name);
+    if (newCollection && selectedProductIds.length > 0) {
+      for (const pid of selectedProductIds) {
+        await updateProduct(pid, { collectionId: newCollection.id });
+      }
+    }
 
     setIsAddColOpen(false);
     setColFormData({ name: '', description: '', image: '' });
     setSelectedProductIds([]);
-    toast({ title: "Sucesso", description: "Coleção adicionada e produtos vinculados" });
+    toast({ title: "Sucesso", description: "Coleção adicionada" + (selectedProductIds.length > 0 ? " e produtos vinculados" : "") });
   };
 
-  const handleDeleteCollection = (id: string) => {
+  const handleDeleteCollection = (id: number) => {
     if (confirm('Excluir coleção?')) {
       deleteCollection(id);
       toast({ title: "Sucesso", description: "Coleção removida" });
@@ -829,7 +836,7 @@ export default function Dashboard() {
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                          {categories.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
@@ -840,7 +847,7 @@ export default function Dashboard() {
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
                         <SelectContent>
-                          {collections.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                          {collections.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
@@ -917,8 +924,8 @@ export default function Dashboard() {
                           </div>
                         </TableCell>
                         <TableCell className="font-display text-base">{product.name}</TableCell>
-                        <TableCell className="font-mono text-xs uppercase tracking-widest">{product.category}</TableCell>
-                        <TableCell className="font-mono text-xs uppercase tracking-widest">{product.collection}</TableCell>
+                        <TableCell className="font-mono text-xs uppercase tracking-widest">{categories.find(c => c.id === product.categoryId)?.name || '-'}</TableCell>
+                        <TableCell className="font-mono text-xs uppercase tracking-widest">{collections.find(c => c.id === product.collectionId)?.name || '-'}</TableCell>
                         <TableCell className="font-mono text-sm text-right">R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
@@ -968,7 +975,7 @@ export default function Dashboard() {
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                        {categories.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -979,7 +986,7 @@ export default function Dashboard() {
                         <SelectValue placeholder="Selecione..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {collections.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                        {collections.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>

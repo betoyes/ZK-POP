@@ -11,7 +11,7 @@ const initialCartItems = [
 ];
 
 export default function Cart() {
-  const { products } = useProducts();
+  const { products, collections } = useProducts();
   const [cartItems, setCartItems] = useState(initialCartItems);
 
   // Enrich cart items with product data from context
@@ -67,7 +67,7 @@ export default function Cart() {
                         <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                       </div>
                       <div>
-                        <div className="text-xs text-primary uppercase tracking-wider mb-1">{product.collection}</div>
+                        <div className="text-xs text-primary uppercase tracking-wider mb-1">{collections.find(c => c.id === product.collectionId)?.name || ''}</div>
                         <h3 className="font-serif text-lg">{product.name}</h3>
                         <p className="text-sm text-muted-foreground md:hidden mt-1">R$ {product.price.toLocaleString('pt-BR')}</p>
                       </div>

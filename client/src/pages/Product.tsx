@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function Product() {
   const [match, params] = useRoute('/product/:id');
-  const { products } = useProducts();
+  const { products, categories, collections } = useProducts();
   const { toast } = useToast();
   const [mainImage, setMainImage] = useState('');
   
@@ -45,7 +45,7 @@ export default function Product() {
 
   // Get related products (same category, excluding current)
   const relatedProducts = products
-    .filter(p => p.category === product.category && p.id !== product.id)
+    .filter(p => p.categoryId === product.categoryId && p.id !== product.id)
     .slice(0, 3);
 
   // All images for carousel (Main + Gallery)
@@ -103,7 +103,7 @@ export default function Product() {
             <div className="border-t border-black pt-4 mb-8">
               <div className="flex justify-between items-start mb-4">
                 <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                  Coleção {product.collection}
+                  Coleção {collections.find(c => c.id === product.collectionId)?.name || ''}
                 </span>
                 <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
                   Ref. {product.id.toString().padStart(4, '0')}

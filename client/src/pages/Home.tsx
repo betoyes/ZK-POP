@@ -4,7 +4,6 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowDown, ArrowUpRight, Play, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { collections } from '@/lib/mockData';
 import { useProducts } from '@/context/ProductContext';
 import heroImage from '@assets/generated_images/luxury_jewelry_hero_image_with_model.png';
 import necklaceImage from '@assets/generated_images/gold_necklace_product_shot.png';
@@ -16,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { testimonials } from '@/lib/mockData';
 
 export default function Home() {
-  const { products, branding } = useProducts();
+  const { products, categories, collections, branding } = useProducts();
   const { toast } = useToast();
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
@@ -269,7 +268,7 @@ export default function Home() {
                 <div className="flex justify-between items-start border-b border-border pb-2 group-hover:border-black transition-colors">
                   <div>
                     <h3 className="font-display text-xl mb-1">{product.name}</h3>
-                    <span className="font-mono text-xs text-muted-foreground uppercase">{product.category}</span>
+                    <span className="font-mono text-xs text-muted-foreground uppercase">{categories.find(c => c.id === product.categoryId)?.name || ''}</span>
                   </div>
                   <span className="font-mono text-sm">
                     R$ {product.price.toLocaleString()}
