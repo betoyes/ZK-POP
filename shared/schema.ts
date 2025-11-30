@@ -91,12 +91,14 @@ export type InsertJournalPost = z.infer<typeof insertJournalPostSchema>;
 export type JournalPost = typeof journalPosts.$inferSelect;
 
 // Newsletter subscribers table
+// type: 'newsletter' (site footer), 'lead' (registered but no purchase), 'customer' (made a purchase)
 export const subscribers = pgTable("subscribers", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().default(''),
   email: text("email").notNull().unique(),
   date: text("date").notNull(),
   status: text("status").notNull().default('active'), // 'active' | 'unsubscribed'
+  type: text("type").notNull().default('newsletter'), // 'newsletter' | 'lead' | 'customer'
 });
 
 export const insertSubscriberSchema = createInsertSchema(subscribers).omit({ id: true });
