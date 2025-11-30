@@ -3,7 +3,7 @@ import { Facebook, Instagram, Twitter } from 'lucide-react';
 import { useProducts } from '@/context/ProductContext';
 
 export function Footer() {
-  const { branding } = useProducts();
+  const { branding, categories } = useProducts();
   return (
     <footer className="bg-background border-t border-border pt-20 pb-10">
       <div className="container mx-auto px-4 md:px-12">
@@ -26,9 +26,13 @@ export function Footer() {
             <h4 className="font-mono text-xs uppercase tracking-widest mb-8 text-muted-foreground">Loja</h4>
             <ul className="space-y-4">
               <li><Link href="/shop" className="font-display text-xl hover:text-muted-foreground transition-colors">Ver Tudo</Link></li>
-              <li><Link href="/shop?category=aneis" className="font-display text-xl hover:text-muted-foreground transition-colors">Anéis</Link></li>
-              <li><Link href="/shop?category=colares" className="font-display text-xl hover:text-muted-foreground transition-colors">Colares</Link></li>
-              <li><Link href="/shop?category=brincos" className="font-display text-xl hover:text-muted-foreground transition-colors">Brincos</Link></li>
+              {categories.map((cat: any) => (
+                <li key={cat.id || cat.slug}>
+                  <Link href={`/shop?category=${cat.slug || cat.id}`} className="font-display text-xl hover:text-muted-foreground transition-colors">
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

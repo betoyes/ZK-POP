@@ -304,6 +304,12 @@ export default function Dashboard() {
     { name: "Dom", total: 0 },
   ];
 
+  // Helper para converter preço em R$ para centavos
+  const parsePriceToNumber = (priceStr: string): number => {
+    const cleaned = priceStr.replace(/\./g, '').replace(',', '.');
+    return Math.round(parseFloat(cleaned) * 100);
+  };
+
   // Product Handlers
   const handleAdd = () => {
     if (!formData.name || !formData.price || !formData.category) {
@@ -313,7 +319,7 @@ export default function Dashboard() {
 
     addProduct({
       name: formData.name,
-      price: Number(formData.price),
+      price: parsePriceToNumber(formData.price),
       description: formData.description,
       category: formData.category,
       collection: formData.collection || 'eternal',
@@ -335,7 +341,7 @@ export default function Dashboard() {
 
     updateProduct(currentProduct.id, {
       name: formData.name,
-      price: Number(formData.price),
+      price: parsePriceToNumber(formData.price),
       description: formData.description,
       category: formData.category,
       collection: formData.collection,
@@ -359,11 +365,17 @@ export default function Dashboard() {
     }
   };
 
+  // Helper para formatar centavos para exibição em R$
+  const formatPriceForDisplay = (priceInCents: number): string => {
+    const reais = priceInCents / 100;
+    return reais.toFixed(2).replace('.', ',');
+  };
+
   const openEdit = (product: any) => {
     setCurrentProduct(product);
     setFormData({
       name: product.name,
-      price: product.price.toString(),
+      price: formatPriceForDisplay(product.price),
       description: product.description,
       category: product.category,
       collection: product.collection,
@@ -776,7 +788,21 @@ export default function Dashboard() {
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="price">Preço (R$)</Label>
-                      <Input id="price" type="number" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="rounded-none" />
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
+                        <Input 
+                          id="price" 
+                          type="text" 
+                          value={formData.price} 
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/[^\d,]/g, '');
+                            setFormData({...formData, price: value});
+                          }} 
+                          placeholder="0,00"
+                          className="rounded-none pl-10" 
+                        />
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">Ex: 1250,00 para R$ 1.250,00</p>
                     </div>
                     <div className="grid gap-2">
                       <Label htmlFor="bestsellerOrder">Ordem no Bestsellers (Deixe vazio para ocultar)</Label>
@@ -920,7 +946,20 @@ export default function Dashboard() {
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="edit-price">Preço (R$)</Label>
-                    <Input id="edit-price" type="number" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="rounded-none" />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
+                      <Input 
+                        id="edit-price" 
+                        type="text" 
+                        value={formData.price} 
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/[^\d,]/g, '');
+                          setFormData({...formData, price: value});
+                        }} 
+                        placeholder="0,00"
+                        className="rounded-none pl-10" 
+                      />
+                    </div>
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="edit-category">Categoria</Label>
