@@ -146,6 +146,12 @@ export async function registerRoutes(
         console.error("Failed to auto-subscribe customer:", subErr);
       }
       
+      // Send admin notification for new lead
+      sendAdminNotification('lead', { 
+        email: username, 
+        name: username.split('@')[0] 
+      }).catch(err => console.error('Failed to send lead notification:', err));
+      
       res.status(201).json({
         id: user.id,
         username: user.username,
@@ -498,7 +504,7 @@ export async function registerRoutes(
     try {
       const { category, collection, bestsellers, new: isNew } = req.query;
       
-      let products;
+      let products: any[] = [];
       if (bestsellers === 'true') {
         products = await storage.getBestsellers();
       } else if (isNew === 'true') {
@@ -662,6 +668,13 @@ export async function registerRoutes(
         ...data,
         type: data.type || 'newsletter',
       });
+      
+      // Send admin notification for new newsletter subscriber
+      sendAdminNotification('newsletter', { 
+        email: data.email, 
+        name: data.name 
+      }).catch(err => console.error('Failed to send newsletter notification:', err));
+      
       res.status(201).json(subscriber);
     } catch (err) {
       next(err);
@@ -742,6 +755,13 @@ export async function registerRoutes(
     try {
       const data = insertCustomerSchema.parse(req.body);
       const customer = await storage.createCustomer(data);
+      
+      // Send admin notification for new customer
+      sendAdminNotification('customer', { 
+        email: data.email, 
+        name: data.name 
+      }).catch(err => console.error('Failed to send customer notification:', err));
+      
       res.status(201).json(customer);
     } catch (err) {
       next(err);
@@ -788,10 +808,14 @@ export async function registerRoutes(
       const order = await storage.createOrder(data);
       
       // Upgrade or create subscriber as customer when order is created
+      let customerEmail = '';
+      let customerName = data.customer;
       if (data.customerId) {
         try {
           const customer = await storage.getCustomerById(data.customerId);
           if (customer?.email) {
+            customerEmail = customer.email;
+            customerName = customer.name;
             // Use createOrUpdateSubscriber to ensure customer is added/upgraded
             await storage.createOrUpdateSubscriber(
               customer.email,
@@ -803,6 +827,15 @@ export async function registerRoutes(
           console.error("Failed to upgrade subscriber to customer:", subErr);
         }
       }
+      
+      // Send admin notification for new order/sale
+      sendAdminNotification('order', { 
+        orderId: data.orderId,
+        name: customerName,
+        email: customerEmail,
+        total: data.total,
+        items: data.items
+      }).catch(err => console.error('Failed to send order notification:', err));
       
       res.status(201).json(order);
     } catch (err) {
