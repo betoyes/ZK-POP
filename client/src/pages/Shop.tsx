@@ -44,8 +44,9 @@ export default function Shop() {
     const collectionMatch = selectedCollections.length === 0 || 
       (productCollection && selectedCollections.includes(productCollection.slug || String(productCollection.id)));
     
-    // Price Filter
-    const priceMatch = product.price >= priceRange[0] && product.price <= priceRange[1];
+    // Price Filter - priceRange is in reais, product.price is in centavos
+    const priceInReais = product.price / 100;
+    const priceMatch = priceInReais >= priceRange[0] && priceInReais <= priceRange[1];
     
     return categoryMatch && collectionMatch && priceMatch;
   }).sort((a, b) => {
