@@ -8,7 +8,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { ArrowLeft, Plus, ArrowRight } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { ArrowLeft, Plus, ArrowRight, Ruler } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Product() {
@@ -136,6 +143,88 @@ export default function Product() {
                   </Button>
                 </Link>
               </div>
+              
+              {/* Ring Size Guide Button - Only for rings */}
+              {categories.find(c => c.id === product.categoryId)?.name?.toLowerCase().includes('anel') || 
+               categories.find(c => c.id === product.categoryId)?.name?.toLowerCase().includes('anéis') ? (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button className="w-full flex items-center justify-center gap-2 py-3 text-muted-foreground hover:text-foreground transition-colors font-mono text-xs uppercase tracking-widest border-b border-border hover:border-foreground">
+                      <Ruler className="h-4 w-4" />
+                      Tabela de Medidas
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="font-display text-2xl md:text-3xl tracking-tight">
+                        Guia de Medidas para Anéis
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-6 py-4">
+                      <p className="text-muted-foreground leading-relaxed">
+                        A tabela abaixo foi desenvolvida para ajudá-lo(a) a identificar, de forma prática, o diâmetro aproximado do seu anel em centímetros, e seu número correspondente. Para uma medição precisa, recomendamos visitar uma de nossas lojas. Vale lembrar que o tamanho dos dedos pode variar entre as mãos.
+                      </p>
+                      
+                      <div className="space-y-4">
+                        <h3 className="font-display text-lg font-medium">Siga os 3 passos abaixo:</h3>
+                        <ol className="space-y-3 text-muted-foreground">
+                          <li className="flex gap-3">
+                            <span className="font-mono text-xs bg-foreground text-background w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">1</span>
+                            <span>Posicione um anel que se ajuste confortavelmente ao seu dedo sobre uma folha de papel e desenhe a parte interna do aro, contornando a circunferência com precisão.</span>
+                          </li>
+                          <li className="flex gap-3">
+                            <span className="font-mono text-xs bg-foreground text-background w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">2</span>
+                            <span>Com o auxílio de uma régua, trace uma linha reta de um extremo ao outro da circunferência, passando exatamente pelo centro — esta será a medida do diâmetro interno.</span>
+                          </li>
+                          <li className="flex gap-3">
+                            <span className="font-mono text-xs bg-foreground text-background w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5">3</span>
+                            <span>Compare a medida em centímetros com os valores da tabela e descubra o número correspondente ao seu anel.</span>
+                          </li>
+                        </ol>
+                      </div>
+
+                      <div className="border-t border-border pt-6">
+                        <h3 className="font-display text-lg font-medium mb-4">Tabela de Conversão</h3>
+                        <div className="grid grid-cols-3 gap-x-8 gap-y-2 font-mono text-sm">
+                          <div className="text-muted-foreground">1,52 cm = <span className="text-foreground">Aro 11</span></div>
+                          <div className="text-muted-foreground">1,56 cm = <span className="text-foreground">Aro 12</span></div>
+                          <div className="text-muted-foreground">1,59 cm = <span className="text-foreground">Aro 13</span></div>
+                          
+                          <div className="text-muted-foreground">1,62 cm = <span className="text-foreground">Aro 14</span></div>
+                          <div className="text-muted-foreground">1,65 cm = <span className="text-foreground">Aro 15</span></div>
+                          <div className="text-muted-foreground">1,69 cm = <span className="text-foreground">Aro 16</span></div>
+                          
+                          <div className="text-muted-foreground">1,73 cm = <span className="text-foreground">Aro 17</span></div>
+                          <div className="text-muted-foreground">1,76 cm = <span className="text-foreground">Aro 18</span></div>
+                          <div className="text-muted-foreground">1,80 cm = <span className="text-foreground">Aro 19</span></div>
+                          
+                          <div className="text-muted-foreground">1,83 cm = <span className="text-foreground">Aro 20</span></div>
+                          <div className="text-muted-foreground">1,86 cm = <span className="text-foreground">Aro 21</span></div>
+                          <div className="text-muted-foreground">1,90 cm = <span className="text-foreground">Aro 22</span></div>
+                          
+                          <div className="text-muted-foreground">1,93 cm = <span className="text-foreground">Aro 23</span></div>
+                          <div className="text-muted-foreground">1,96 cm = <span className="text-foreground">Aro 24</span></div>
+                          <div className="text-muted-foreground">1,99 cm = <span className="text-foreground">Aro 25</span></div>
+                          
+                          <div className="text-muted-foreground">2,03 cm = <span className="text-foreground">Aro 26</span></div>
+                          <div className="text-muted-foreground">2,06 cm = <span className="text-foreground">Aro 27</span></div>
+                          <div className="text-muted-foreground">2,09 cm = <span className="text-foreground">Aro 28</span></div>
+                          
+                          <div className="text-muted-foreground">2,13 cm = <span className="text-foreground">Aro 29</span></div>
+                          <div className="text-muted-foreground">2,16 cm = <span className="text-foreground">Aro 30</span></div>
+                          <div className="text-muted-foreground">2,20 cm = <span className="text-foreground">Aro 31</span></div>
+                          
+                          <div className="text-muted-foreground">2,24 cm = <span className="text-foreground">Aro 32</span></div>
+                          <div className="text-muted-foreground">2,27 cm = <span className="text-foreground">Aro 33</span></div>
+                          <div className="text-muted-foreground">2,30 cm = <span className="text-foreground">Aro 34</span></div>
+                          
+                          <div className="text-muted-foreground">2,33 cm = <span className="text-foreground">Aro 35</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              ) : null}
               
               <div className="font-mono text-[10px] uppercase tracking-widest text-center text-muted-foreground">
                 Envio Global Grátis • Garantia Vitalícia
