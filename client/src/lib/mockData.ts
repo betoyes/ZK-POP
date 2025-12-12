@@ -16,6 +16,12 @@ export interface Product {
   specs?: string[];
   bestsellerOrder?: number;
   isNew?: boolean;
+  priceDiamondSynthetic?: number;
+  priceZirconia?: number;
+  descriptionDiamondSynthetic?: string;
+  descriptionZirconia?: string;
+  specsDiamondSynthetic?: string[];
+  specsZirconia?: string[];
 }
 
 export interface Category {

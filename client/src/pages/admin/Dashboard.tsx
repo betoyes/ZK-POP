@@ -873,11 +873,12 @@ export default function Dashboard() {
                     <Plus className="h-4 w-4" /> Novo Produto
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] bg-background border border-border">
-                  <DialogHeader>
+                <DialogContent className="sm:max-w-[700px] max-h-[90vh] bg-background border border-border overflow-hidden flex flex-col">
+                  <DialogHeader className="flex-shrink-0">
                     <DialogTitle className="font-display text-2xl">Adicionar Produto</DialogTitle>
                   </DialogHeader>
-                  <div className="grid gap-4 py-4">
+                  <div className="flex-1 overflow-y-auto pr-2">
+                  <div className="grid gap-6 py-4">
                     <div className="grid gap-2">
                       <Label htmlFor="name">Nome</Label>
                       <Input id="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="rounded-none" />
@@ -1129,7 +1130,8 @@ export default function Dashboard() {
                       </div>
                     )}
                   </div>
-                  <DialogFooter>
+                  </div>
+                  <DialogFooter className="flex-shrink-0 pt-4 border-t border-border">
                     <Button onClick={handleAdd} className="rounded-none w-full bg-black text-white hover:bg-primary uppercase tracking-widest font-mono text-xs">Salvar</Button>
                   </DialogFooter>
                 </DialogContent>
@@ -1180,11 +1182,12 @@ export default function Dashboard() {
 
             {/* Edit Dialog */}
             <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-              <DialogContent className="sm:max-w-[425px] bg-background border border-border">
-                <DialogHeader>
+              <DialogContent className="sm:max-w-[700px] max-h-[90vh] bg-background border border-border overflow-hidden flex flex-col">
+                <DialogHeader className="flex-shrink-0">
                   <DialogTitle className="font-display text-2xl">Editar Produto</DialogTitle>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                <div className="flex-1 overflow-y-auto pr-2">
+                <div className="grid gap-6 py-4">
                   <div className="grid gap-2">
                     <Label htmlFor="edit-name">Nome</Label>
                     <Input id="edit-name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="rounded-none" />
@@ -1421,7 +1424,8 @@ export default function Dashboard() {
                       </div>
                     )}
                 </div>
-                <DialogFooter>
+                </div>
+                <DialogFooter className="flex-shrink-0 pt-4 border-t border-border">
                   <Button onClick={handleEdit} className="rounded-none w-full bg-black text-white hover:bg-primary uppercase tracking-widest font-mono text-xs">Atualizar</Button>
                 </DialogFooter>
               </DialogContent>
