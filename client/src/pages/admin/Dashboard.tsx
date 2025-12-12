@@ -188,9 +188,18 @@ export default function Dashboard() {
     image: '',
     imageColor: '',
     gallery: [] as string[],
+    version1: '',
+    version2: '',
+    version3: '',
     specs: '',
     bestsellerOrder: ''
   });
+
+  // Check if selected category is "Anéis" or "Anel"
+  const isRingCategory = () => {
+    const selectedCat = categories.find(c => String(c.id) === formData.category);
+    return selectedCat?.name?.toLowerCase().includes('anel') || selectedCat?.name?.toLowerCase().includes('anéis');
+  };
 
   const [catFormData, setCatFormData] = useState({ name: '', description: '' });
   const [colFormData, setColFormData] = useState({ name: '', description: '', image: '' });
@@ -237,6 +246,18 @@ export default function Dashboard() {
       ...prev,
       gallery: prev.gallery.filter((_, i) => i !== index)
     }));
+  };
+
+  // Handle version image upload for rings
+  const handleVersionUpload = (e: React.ChangeEvent<HTMLInputElement>, versionField: 'version1' | 'version2' | 'version3') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, [versionField]: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
   
   // Helper for collection/category product selection
@@ -320,15 +341,26 @@ export default function Dashboard() {
     const selectedCategory = categories.find(c => String(c.id) === formData.category);
     const selectedCollection = collections.find(c => String(c.id) === formData.collection);
 
+    // For rings, use versions as gallery. Version 1 = main image, Version 2 & 3 = gallery
+    let galleryImages = formData.gallery;
+    let mainImage = formData.image || getMockImage(formData.category);
+    let colorImage = formData.imageColor || formData.image || getMockImage(formData.category);
+    
+    if (isRingCategory()) {
+      mainImage = formData.version1 || formData.image || getMockImage(formData.category);
+      colorImage = formData.version1 || formData.image || getMockImage(formData.category);
+      galleryImages = [formData.version2, formData.version3].filter(Boolean);
+    }
+
     addProduct({
       name: formData.name,
       price: parsePriceToNumber(formData.price),
       description: formData.description,
       categoryId: selectedCategory ? selectedCategory.id : undefined,
       collectionId: selectedCollection ? selectedCollection.id : undefined,
-      image: formData.image || getMockImage(formData.category),
-      imageColor: formData.imageColor || formData.image || getMockImage(formData.category),
-      gallery: formData.gallery,
+      image: mainImage,
+      imageColor: colorImage,
+      gallery: galleryImages,
       specs: formData.specs.split('\n').filter(s => s.trim() !== ''),
       bestsellerOrder: formData.bestsellerOrder ? Number(formData.bestsellerOrder) : undefined,
       isNew: true
@@ -345,15 +377,26 @@ export default function Dashboard() {
     const selectedCategory = categories.find(c => String(c.id) === formData.category);
     const selectedCollection = collections.find(c => String(c.id) === formData.collection);
 
+    // For rings, use versions as gallery. Version 1 = main image, Version 2 & 3 = gallery
+    let galleryImages = formData.gallery;
+    let mainImage = formData.image;
+    let colorImage = formData.imageColor;
+    
+    if (isRingCategory()) {
+      mainImage = formData.version1 || formData.image;
+      colorImage = formData.version1 || formData.image;
+      galleryImages = [formData.version2, formData.version3].filter(Boolean);
+    }
+
     updateProduct(currentProduct.id, {
       name: formData.name,
       price: parsePriceToNumber(formData.price),
       description: formData.description,
       categoryId: selectedCategory ? selectedCategory.id : undefined,
       collectionId: selectedCollection ? selectedCollection.id : undefined,
-      image: formData.image,
-      imageColor: formData.imageColor,
-      gallery: formData.gallery,
+      image: mainImage,
+      imageColor: colorImage,
+      gallery: galleryImages,
       specs: formData.specs.split('\n').filter(s => s.trim() !== ''),
       bestsellerOrder: formData.bestsellerOrder ? Number(formData.bestsellerOrder) : undefined
     });
@@ -379,6 +422,11 @@ export default function Dashboard() {
 
   const openEdit = (product: any) => {
     setCurrentProduct(product);
+    
+    // Check if this product is a ring to load versions
+    const productCat = categories.find(c => c.id === product.categoryId);
+    const isRingProduct = productCat?.name?.toLowerCase().includes('anel') || productCat?.name?.toLowerCase().includes('anéis');
+    
     setFormData({
       name: product.name,
       price: formatPriceForDisplay(product.price),
@@ -388,6 +436,9 @@ export default function Dashboard() {
       image: product.image,
       imageColor: product.imageColor || product.image,
       gallery: product.gallery || [],
+      version1: isRingProduct ? (product.imageColor || product.image || '') : '',
+      version2: isRingProduct && product.gallery?.[0] ? product.gallery[0] : '',
+      version3: isRingProduct && product.gallery?.[1] ? product.gallery[1] : '',
       specs: product.specs ? product.specs.join('\n') : '',
       bestsellerOrder: product.bestsellerOrder ? product.bestsellerOrder.toString() : ''
     });
@@ -404,6 +455,9 @@ export default function Dashboard() {
       image: '',
       imageColor: '',
       gallery: [],
+      version1: '',
+      version2: '',
+      version3: '',
       specs: '',
       bestsellerOrder: ''
     });
@@ -863,33 +917,106 @@ export default function Dashboard() {
                         {formData.image && <div className="h-10 w-10 bg-secondary"><img src={formData.image} className="h-full w-full object-cover" /></div>}
                       </div>
                     </div>
-                    <div className="grid gap-2">
-                      <Label>Galeria de Fotos</Label>
-                      <div className="flex gap-4 items-center">
-                        <Input 
-                            type="file" 
-                            accept="image/*"
-                            multiple
-                            onChange={handleGalleryUpload}
-                            className="rounded-none font-mono text-xs" 
-                        />
-                      </div>
-                      {formData.gallery.length > 0 && (
-                        <div className="grid grid-cols-4 gap-2 mt-2">
-                          {formData.gallery.map((img, idx) => (
-                            <div key={idx} className="relative group h-16 w-16 bg-secondary">
-                              <img src={img} className="h-full w-full object-cover" />
-                              <button 
-                                onClick={() => removeGalleryImage(idx)}
-                                className="absolute top-0 right-0 bg-red-500 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <Trash className="h-3 w-3" />
-                              </button>
-                            </div>
-                          ))}
+                    {/* Conditional: Ring Versions or Gallery */}
+                    {isRingCategory() ? (
+                      <div className="grid gap-4 border-t border-border pt-4">
+                        <Label className="font-mono text-xs uppercase tracking-widest text-primary">Versões do Anel</Label>
+                        <p className="text-xs text-muted-foreground -mt-2">Cada anel pode ter até 3 versões diferentes que o cliente poderá escolher.</p>
+                        
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="space-y-2">
+                            <Label className="text-xs">Versão 1</Label>
+                            <Input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => handleVersionUpload(e, 'version1')}
+                              className="rounded-none font-mono text-xs" 
+                            />
+                            {formData.version1 && (
+                              <div className="relative h-20 w-20 bg-secondary">
+                                <img src={formData.version1} className="h-full w-full object-cover" />
+                                <button 
+                                  onClick={() => setFormData(prev => ({...prev, version1: ''}))}
+                                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
+                                >
+                                  <Trash className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-xs">Versão 2</Label>
+                            <Input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => handleVersionUpload(e, 'version2')}
+                              className="rounded-none font-mono text-xs" 
+                            />
+                            {formData.version2 && (
+                              <div className="relative h-20 w-20 bg-secondary">
+                                <img src={formData.version2} className="h-full w-full object-cover" />
+                                <button 
+                                  onClick={() => setFormData(prev => ({...prev, version2: ''}))}
+                                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
+                                >
+                                  <Trash className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-xs">Versão 3</Label>
+                            <Input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => handleVersionUpload(e, 'version3')}
+                              className="rounded-none font-mono text-xs" 
+                            />
+                            {formData.version3 && (
+                              <div className="relative h-20 w-20 bg-secondary">
+                                <img src={formData.version3} className="h-full w-full object-cover" />
+                                <button 
+                                  onClick={() => setFormData(prev => ({...prev, version3: ''}))}
+                                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
+                                >
+                                  <Trash className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="grid gap-2">
+                        <Label>Galeria de Fotos</Label>
+                        <div className="flex gap-4 items-center">
+                          <Input 
+                              type="file" 
+                              accept="image/*"
+                              multiple
+                              onChange={handleGalleryUpload}
+                              className="rounded-none font-mono text-xs" 
+                          />
+                        </div>
+                        {formData.gallery.length > 0 && (
+                          <div className="grid grid-cols-4 gap-2 mt-2">
+                            {formData.gallery.map((img, idx) => (
+                              <div key={idx} className="relative group h-16 w-16 bg-secondary">
+                                <img src={img} className="h-full w-full object-cover" />
+                                <button 
+                                  onClick={() => removeGalleryImage(idx)}
+                                  className="absolute top-0 right-0 bg-red-500 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Trash className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <DialogFooter>
                     <Button onClick={handleAdd} className="rounded-none w-full bg-black text-white hover:bg-primary uppercase tracking-widest font-mono text-xs">Salvar</Button>
@@ -1006,33 +1133,106 @@ export default function Dashboard() {
                         {formData.image && <div className="h-10 w-10 bg-secondary"><img src={formData.image} className="h-full w-full object-cover" /></div>}
                       </div>
                     </div>
-                    <div className="grid gap-2">
-                      <Label>Galeria de Fotos</Label>
-                      <div className="flex gap-4 items-center">
-                        <Input 
-                            type="file" 
-                            accept="image/*"
-                            multiple
-                            onChange={handleGalleryUpload}
-                            className="rounded-none font-mono text-xs" 
-                        />
-                      </div>
-                      {formData.gallery.length > 0 && (
-                        <div className="grid grid-cols-4 gap-2 mt-2">
-                          {formData.gallery.map((img, idx) => (
-                            <div key={idx} className="relative group h-16 w-16 bg-secondary">
-                              <img src={img} className="h-full w-full object-cover" />
-                              <button 
-                                onClick={() => removeGalleryImage(idx)}
-                                className="absolute top-0 right-0 bg-red-500 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <Trash className="h-3 w-3" />
-                              </button>
-                            </div>
-                          ))}
+                    {/* Conditional: Ring Versions or Gallery for Edit */}
+                    {isRingCategory() ? (
+                      <div className="grid gap-4 border-t border-border pt-4">
+                        <Label className="font-mono text-xs uppercase tracking-widest text-primary">Versões do Anel</Label>
+                        <p className="text-xs text-muted-foreground -mt-2">Cada anel pode ter até 3 versões diferentes que o cliente poderá escolher.</p>
+                        
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="space-y-2">
+                            <Label className="text-xs">Versão 1</Label>
+                            <Input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => handleVersionUpload(e, 'version1')}
+                              className="rounded-none font-mono text-xs" 
+                            />
+                            {formData.version1 && (
+                              <div className="relative h-20 w-20 bg-secondary">
+                                <img src={formData.version1} className="h-full w-full object-cover" />
+                                <button 
+                                  onClick={() => setFormData(prev => ({...prev, version1: ''}))}
+                                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
+                                >
+                                  <Trash className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-xs">Versão 2</Label>
+                            <Input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => handleVersionUpload(e, 'version2')}
+                              className="rounded-none font-mono text-xs" 
+                            />
+                            {formData.version2 && (
+                              <div className="relative h-20 w-20 bg-secondary">
+                                <img src={formData.version2} className="h-full w-full object-cover" />
+                                <button 
+                                  onClick={() => setFormData(prev => ({...prev, version2: ''}))}
+                                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
+                                >
+                                  <Trash className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-xs">Versão 3</Label>
+                            <Input 
+                              type="file" 
+                              accept="image/*"
+                              onChange={(e) => handleVersionUpload(e, 'version3')}
+                              className="rounded-none font-mono text-xs" 
+                            />
+                            {formData.version3 && (
+                              <div className="relative h-20 w-20 bg-secondary">
+                                <img src={formData.version3} className="h-full w-full object-cover" />
+                                <button 
+                                  onClick={() => setFormData(prev => ({...prev, version3: ''}))}
+                                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
+                                >
+                                  <Trash className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="grid gap-2">
+                        <Label>Galeria de Fotos</Label>
+                        <div className="flex gap-4 items-center">
+                          <Input 
+                              type="file" 
+                              accept="image/*"
+                              multiple
+                              onChange={handleGalleryUpload}
+                              className="rounded-none font-mono text-xs" 
+                          />
+                        </div>
+                        {formData.gallery.length > 0 && (
+                          <div className="grid grid-cols-4 gap-2 mt-2">
+                            {formData.gallery.map((img, idx) => (
+                              <div key={idx} className="relative group h-16 w-16 bg-secondary">
+                                <img src={img} className="h-full w-full object-cover" />
+                                <button 
+                                  onClick={() => removeGalleryImage(idx)}
+                                  className="absolute top-0 right-0 bg-red-500 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Trash className="h-3 w-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
                 <DialogFooter>
                   <Button onClick={handleEdit} className="rounded-none w-full bg-black text-white hover:bg-primary uppercase tracking-widest font-mono text-xs">Atualizar</Button>
