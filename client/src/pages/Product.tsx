@@ -98,15 +98,32 @@ export default function Product() {
 
   useEffect(() => {
     if (product) {
-      if (isRing && ringVersions[selectedVersion - 1]) {
-        setMainImage(ringVersions[selectedVersion - 1].image);
-      } else {
-        setMainImage(product.image || product.imageColor || '');
-      }
+      // Always use main product image as default, not version1
+      setMainImage(product.image || product.imageColor || '');
     }
-  }, [product, selectedVersion, isRing]);
+  }, [product]);
+  
+  // Separate effect for version changes (only when user clicks a version)
+  const handleVersionChange = (version: number) => {
+    setSelectedVersion(version);
+    if (ringVersions[version - 1]) {
+      setMainImage(ringVersions[version - 1].image);
+    }
+  };
 
   if (!match) return null;
+
+  // Show loading while products are being fetched
+  if (products.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center flex-col gap-4 bg-background text-foreground">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-6 w-32 bg-muted rounded mb-4" />
+          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -257,7 +274,10 @@ export default function Product() {
                         <div className="aspect-video w-full">
                           {(product as any).video.includes('youtube.com') || (product as any).video.includes('youtu.be') ? (
                             <iframe
-                              src={(product as any).video.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                              src={(product as any).video
+                                .replace('watch?v=', 'embed/')
+                                .replace('youtu.be/', 'youtube.com/embed/')
+                                .replace('/shorts/', '/embed/')}
                               className="w-full h-full"
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               allowFullScreen
@@ -284,7 +304,7 @@ export default function Product() {
                   {ringVersions.map((v) => (
                     <button
                       key={v.version}
-                      onClick={() => setSelectedVersion(v.version)}
+                      onClick={() => handleVersionChange(v.version)}
                       className={`group relative flex-1 border transition-all duration-300 ${
                         selectedVersion === v.version 
                           ? 'border-black ring-1 ring-black' 
