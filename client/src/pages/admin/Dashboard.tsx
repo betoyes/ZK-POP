@@ -394,7 +394,8 @@ export default function Dashboard() {
     // For rings, use versions as gallery. Version 1 = main image, Version 2 & 3 = gallery
     let galleryImages = formData.gallery;
     let mainImage = formData.image;
-    let colorImage = formData.imageColor;
+    // If a new image was uploaded (different from original), also use it as colorImage
+    let colorImage = formData.image !== currentProduct.image ? formData.image : formData.imageColor;
     
     if (isRingCategory()) {
       mainImage = formData.version1 || formData.image;
