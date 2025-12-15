@@ -753,8 +753,8 @@ export default function Dashboard() {
                 return [
                   { title: "Receita Total", value: formattedRevenue, change: orders.length > 0 ? "+0%" : "-", icon: DollarSign },
                   { title: "Vendas", value: `+${orders.length}`, change: "+0%", icon: TrendingUp },
-                  { title: "Produtos", value: products.length.toString(), change: "+0", icon: Package },
-                  { title: "Clientes", value: customers.length.toString(), change: "+0", icon: Users },
+                  { title: "Produtos", value: (Array.isArray(products) ? products.length : 0).toString(), change: "+0", icon: Package },
+                  { title: "Clientes", value: (Array.isArray(customers) ? customers.length : 0).toString(), change: "+0", icon: Users },
                 ];
               })().map((stat, i) => (
                 <div key={i} className="border border-border p-6 hover:border-black transition-colors group bg-card">
@@ -812,7 +812,7 @@ export default function Dashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {orders.map(order => (
+                    {(Array.isArray(orders) ? orders : []).map(order => (
                       <TableRow key={order.id} className="hover:bg-secondary/30 border-b border-border">
                         <TableCell className="font-mono text-xs">{order.id}</TableCell>
                         <TableCell className="font-display">{order.customer}</TableCell>
@@ -904,7 +904,7 @@ export default function Dashboard() {
                                 <SelectValue placeholder="Selecione..." />
                               </SelectTrigger>
                               <SelectContent>
-                                {categories.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+                                {(Array.isArray(categories) ? categories : []).map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                               </SelectContent>
                             </Select>
                           </div>
@@ -915,7 +915,7 @@ export default function Dashboard() {
                                 <SelectValue placeholder="Selecione..." />
                               </SelectTrigger>
                               <SelectContent>
-                                {collections.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+                                {(Array.isArray(collections) ? collections : []).map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                               </SelectContent>
                             </Select>
                           </div>
@@ -1178,7 +1178,7 @@ export default function Dashboard() {
                               <SelectValue placeholder="Selecione..." />
                             </SelectTrigger>
                             <SelectContent>
-                              {categories.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+                              {(Array.isArray(categories) ? categories : []).map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                             </SelectContent>
                           </Select>
                         </div>
@@ -1189,7 +1189,7 @@ export default function Dashboard() {
                               <SelectValue placeholder="Selecione..." />
                             </SelectTrigger>
                             <SelectContent>
-                              {collections.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+                              {(Array.isArray(collections) ? collections : []).map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                             </SelectContent>
                           </Select>
                         </div>
@@ -1393,7 +1393,7 @@ export default function Dashboard() {
                     <div className="grid gap-2 mt-4">
                     <Label>Selecionar Produtos</Label>
                     <div className="border border-border p-4 h-48 overflow-y-auto space-y-2">
-                        {products.map(p => (
+                        {(Array.isArray(products) ? products : []).map(p => (
                             <div key={p.id} className="flex items-center gap-2">
                                 <input 
                                     type="checkbox" 
@@ -1419,7 +1419,7 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories.map(cat => (
+              {(Array.isArray(categories) ? categories : []).map(cat => (
                 <div key={cat.id} className="border border-border p-6 bg-card hover:border-black transition-all group relative">
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button onClick={() => handleDeleteCategory(cat.id)} variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive hover:bg-transparent"><Trash className="h-4 w-4" /></Button>
@@ -1475,7 +1475,7 @@ export default function Dashboard() {
                     <div className="grid gap-2 mt-4">
                     <Label>Selecionar Produtos</Label>
                     <div className="border border-border p-4 h-48 overflow-y-auto space-y-2">
-                        {products.map(p => (
+                        {(Array.isArray(products) ? products : []).map(p => (
                             <div key={p.id} className="flex items-center gap-2">
                                 <input 
                                     type="checkbox" 
@@ -1501,7 +1501,7 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {collections.map(col => (
+              {(Array.isArray(collections) ? collections : []).map(col => (
                 <div key={col.id} className="border border-border bg-card group relative overflow-hidden">
                    <div className="h-48 bg-secondary/30 overflow-hidden">
                      <img src={col.image} alt={col.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
@@ -1537,7 +1537,7 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {customers.map((customer) => (
+                  {(Array.isArray(customers) ? customers : []).map((customer) => (
                     <TableRow key={customer.id} className="hover:bg-secondary/30 border-b border-border transition-colors">
                       <TableCell className="font-display text-base">{customer.name}</TableCell>
                       <TableCell className="font-mono text-xs">{customer.email}</TableCell>
