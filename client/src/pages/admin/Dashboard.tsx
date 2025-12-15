@@ -191,6 +191,7 @@ export default function Dashboard() {
     version1: '',
     version2: '',
     version3: '',
+    video: '',
     specs: '',
     bestsellerOrder: '',
     // Stone type variants for rings
@@ -348,16 +349,8 @@ export default function Dashboard() {
     const selectedCategory = categories.find(c => String(c.id) === formData.category);
     const selectedCollection = collections.find(c => String(c.id) === formData.collection);
 
-    // For rings, use versions as gallery. Version 1 = main image, Version 2 & 3 = gallery
-    let galleryImages = formData.gallery;
-    let mainImage = formData.image || getMockImage(formData.category);
-    let colorImage = formData.imageColor || formData.image || getMockImage(formData.category);
-    
-    if (isRingCategory()) {
-      mainImage = formData.version1 || formData.image || getMockImage(formData.category);
-      colorImage = formData.version1 || formData.image || getMockImage(formData.category);
-      galleryImages = [formData.version2, formData.version3].filter(Boolean);
-    }
+    const mainImage = formData.image || getMockImage(formData.category);
+    const galleryImages = [formData.version1, formData.version2, formData.version3].filter(Boolean);
 
     addProduct({
       name: formData.name,
@@ -366,8 +359,12 @@ export default function Dashboard() {
       categoryId: selectedCategory ? selectedCategory.id : undefined,
       collectionId: selectedCollection ? selectedCollection.id : undefined,
       image: mainImage,
-      imageColor: colorImage,
+      imageColor: mainImage,
       gallery: galleryImages,
+      version1: formData.version1 || undefined,
+      version2: formData.version2 || undefined,
+      version3: formData.version3 || undefined,
+      video: formData.video || undefined,
       specs: formData.specs.split('\n').filter(s => s.trim() !== ''),
       bestsellerOrder: formData.bestsellerOrder ? Number(formData.bestsellerOrder) : undefined,
       isNew: true,
@@ -391,17 +388,8 @@ export default function Dashboard() {
     const selectedCategory = categories.find(c => String(c.id) === formData.category);
     const selectedCollection = collections.find(c => String(c.id) === formData.collection);
 
-    // For rings, use versions as gallery. Version 1 = main image, Version 2 & 3 = gallery
-    let galleryImages = formData.gallery;
-    let mainImage = formData.image;
-    // If a new image was uploaded (different from original), also use it as colorImage
-    let colorImage = formData.image !== currentProduct.image ? formData.image : formData.imageColor;
-    
-    if (isRingCategory()) {
-      mainImage = formData.version1 || formData.image;
-      colorImage = formData.version1 || formData.image;
-      galleryImages = [formData.version2, formData.version3].filter(Boolean);
-    }
+    const mainImage = formData.image;
+    const galleryImages = [formData.version1, formData.version2, formData.version3].filter(Boolean);
 
     updateProduct(currentProduct.id, {
       name: formData.name,
@@ -410,8 +398,12 @@ export default function Dashboard() {
       categoryId: selectedCategory ? selectedCategory.id : undefined,
       collectionId: selectedCollection ? selectedCollection.id : undefined,
       image: mainImage,
-      imageColor: colorImage,
+      imageColor: mainImage,
       gallery: galleryImages,
+      version1: formData.version1 || undefined,
+      version2: formData.version2 || undefined,
+      version3: formData.version3 || undefined,
+      video: formData.video || undefined,
       specs: formData.specs.split('\n').filter(s => s.trim() !== ''),
       bestsellerOrder: formData.bestsellerOrder ? Number(formData.bestsellerOrder) : undefined,
       // Stone type variants
@@ -445,10 +437,6 @@ export default function Dashboard() {
   const openEdit = (product: any) => {
     setCurrentProduct(product);
     
-    // Check if this product is a ring to load versions
-    const productCat = categories.find(c => c.id === product.categoryId);
-    const isRingProduct = productCat?.name?.toLowerCase().includes('anel') || productCat?.name?.toLowerCase().includes('anéis');
-    
     setFormData({
       name: product.name,
       price: formatPriceForDisplay(product.price),
@@ -458,9 +446,10 @@ export default function Dashboard() {
       image: product.image,
       imageColor: product.imageColor || product.image,
       gallery: product.gallery || [],
-      version1: isRingProduct ? (product.imageColor || product.image || '') : '',
-      version2: isRingProduct && product.gallery?.[0] ? product.gallery[0] : '',
-      version3: isRingProduct && product.gallery?.[1] ? product.gallery[1] : '',
+      version1: product.version1 || '',
+      version2: product.version2 || '',
+      version3: product.version3 || '',
+      video: product.video || '',
       specs: product.specs ? product.specs.join('\n') : '',
       bestsellerOrder: product.bestsellerOrder ? product.bestsellerOrder.toString() : '',
       // Stone type variants
@@ -487,6 +476,7 @@ export default function Dashboard() {
       version1: '',
       version2: '',
       version3: '',
+      video: '',
       specs: '',
       bestsellerOrder: '',
       // Stone type variants
@@ -874,264 +864,228 @@ export default function Dashboard() {
                     <Plus className="h-4 w-4" /> Novo Produto
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[700px] max-h-[90vh] bg-background border border-border overflow-hidden flex flex-col">
+                <DialogContent className="sm:max-w-[1100px] max-h-[90vh] bg-background border border-border overflow-hidden flex flex-col">
                   <DialogHeader className="flex-shrink-0">
                     <DialogTitle className="font-display text-2xl">Adicionar Produto</DialogTitle>
                     <DialogDescription className="sr-only">Formulário para adicionar um novo produto ao catálogo</DialogDescription>
                   </DialogHeader>
                   <div className="flex-1 overflow-y-auto pr-2">
-                  <div className="grid gap-6 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="name">Nome</Label>
-                      <Input id="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="rounded-none" />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="price">Preço (R$)</Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
-                        <Input 
-                          id="price" 
-                          type="text" 
-                          value={formData.price} 
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/[^\d,]/g, '');
-                            setFormData({...formData, price: value});
-                          }} 
-                          placeholder="0,00"
-                          className="rounded-none pl-10" 
-                        />
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">Ex: 1250,00 para R$ 1.250,00</p>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="bestsellerOrder">Ordem no Bestsellers (Deixe vazio para ocultar)</Label>
-                      <Input id="bestsellerOrder" type="number" placeholder="Ex: 1, 2, 3..." value={formData.bestsellerOrder} onChange={(e) => setFormData({...formData, bestsellerOrder: e.target.value})} className="rounded-none" />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="description">Descrição</Label>
-                      <Textarea id="description" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="rounded-none" />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="specs">Especificações Técnicas (uma por linha)</Label>
-                      <Textarea 
-                        id="specs" 
-                        value={formData.specs} 
-                        onChange={(e) => setFormData({...formData, specs: e.target.value})} 
-                        className="rounded-none h-24" 
-                        placeholder="Material: Ouro 18K&#10;Peso: 5g&#10;Gema: Diamante"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="category">Categoria</Label>
-                      <Select value={formData.category} onValueChange={(val) => setFormData({...formData, category: val})}>
-                        <SelectTrigger className="rounded-none">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="collection">Coleção</Label>
-                      <Select value={formData.collection} onValueChange={(val) => setFormData({...formData, collection: val})}>
-                        <SelectTrigger className="rounded-none">
-                          <SelectValue placeholder="Selecione..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {collections.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-2">
-                      <Label>Imagem (P&B / Principal)</Label>
-                      <div className="flex gap-4 items-center">
-                        <Input 
-                            type="file" 
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, 'image')}
-                            className="rounded-none font-mono text-xs" 
-                        />
-                        {formData.image && <div className="h-10 w-10 bg-secondary"><img src={formData.image} className="h-full w-full object-cover" /></div>}
-                      </div>
-                    </div>
-                    {/* Conditional: Ring Versions or Gallery */}
-                    {isRingCategory() ? (
-                      <div className="grid gap-4 border-t border-border pt-4">
-                        <Label className="font-mono text-xs uppercase tracking-widest text-primary">Versões do Anel</Label>
-                        <p className="text-xs text-muted-foreground -mt-2">Cada anel pode ter até 3 versões diferentes que o cliente poderá escolher.</p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 py-4">
+                      {/* LEFT COLUMN - Basic Info */}
+                      <div className="space-y-4">
+                        <h3 className="font-mono text-xs uppercase tracking-widest text-primary border-b border-border pb-2">Informações Básicas</h3>
                         
-                        <div className="grid grid-cols-3 gap-3">
-                          <div className="space-y-2">
-                            <Label className="text-xs">Versão 1</Label>
+                        <div className="grid gap-2">
+                          <Label htmlFor="name">Nome</Label>
+                          <Input id="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="rounded-none" />
+                        </div>
+                        
+                        <div className="grid gap-2">
+                          <Label htmlFor="price">Preço (R$)</Label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
                             <Input 
-                              type="file" 
-                              accept="image/*"
-                              onChange={(e) => handleVersionUpload(e, 'version1')}
-                              className="rounded-none font-mono text-xs" 
+                              id="price" 
+                              type="text" 
+                              value={formData.price} 
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/[^\d,]/g, '');
+                                setFormData({...formData, price: value});
+                              }} 
+                              placeholder="0,00"
+                              className="rounded-none pl-10" 
                             />
-                            {formData.version1 && (
-                              <div className="relative h-20 w-20 bg-secondary">
-                                <img src={formData.version1} className="h-full w-full object-cover" />
-                                <button 
-                                  onClick={() => setFormData(prev => ({...prev, version1: ''}))}
-                                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
-                                >
-                                  <Trash className="h-3 w-3" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label className="text-xs">Versão 2</Label>
-                            <Input 
-                              type="file" 
-                              accept="image/*"
-                              onChange={(e) => handleVersionUpload(e, 'version2')}
-                              className="rounded-none font-mono text-xs" 
-                            />
-                            {formData.version2 && (
-                              <div className="relative h-20 w-20 bg-secondary">
-                                <img src={formData.version2} className="h-full w-full object-cover" />
-                                <button 
-                                  onClick={() => setFormData(prev => ({...prev, version2: ''}))}
-                                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
-                                >
-                                  <Trash className="h-3 w-3" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label className="text-xs">Versão 3</Label>
-                            <Input 
-                              type="file" 
-                              accept="image/*"
-                              onChange={(e) => handleVersionUpload(e, 'version3')}
-                              className="rounded-none font-mono text-xs" 
-                            />
-                            {formData.version3 && (
-                              <div className="relative h-20 w-20 bg-secondary">
-                                <img src={formData.version3} className="h-full w-full object-cover" />
-                                <button 
-                                  onClick={() => setFormData(prev => ({...prev, version3: ''}))}
-                                  className="absolute top-0 right-0 bg-red-500 text-white p-1"
-                                >
-                                  <Trash className="h-3 w-3" />
-                                </button>
-                              </div>
-                            )}
                           </div>
                         </div>
                         
-                        {/* Stone Type Variants */}
-                        <div className="border-t border-border pt-4 mt-4">
-                          <Label className="font-mono text-xs uppercase tracking-widest text-primary">Tipos de Pedra</Label>
-                          <p className="text-xs text-muted-foreground mt-1 mb-4">Configure preços e descrições diferentes para cada tipo de pedra.</p>
-                          
-                          {/* Diamante Sintético */}
-                          <div className="space-y-3 mb-6 p-4 bg-secondary/30 border border-border">
-                            <Label className="font-mono text-xs uppercase tracking-widest">Diamante Sintético</Label>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <Label className="text-xs text-muted-foreground">Preço (R$)</Label>
-                                <Input 
-                                  type="text" 
-                                  placeholder="0,00"
-                                  value={formData.priceDiamondSynthetic} 
-                                  onChange={(e) => setFormData({...formData, priceDiamondSynthetic: e.target.value.replace(/[^\d,]/g, '')})} 
-                                  className="rounded-none font-mono text-sm" 
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Descrição</Label>
-                              <Textarea 
-                                placeholder="Descrição específica para diamante sintético..."
-                                value={formData.descriptionDiamondSynthetic} 
-                                onChange={(e) => setFormData({...formData, descriptionDiamondSynthetic: e.target.value})} 
-                                className="rounded-none h-20" 
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Especificações (uma por linha)</Label>
-                              <Textarea 
-                                placeholder="Material: Ouro 18K&#10;Pedra: Diamante Sintético"
-                                value={formData.specsDiamondSynthetic} 
-                                onChange={(e) => setFormData({...formData, specsDiamondSynthetic: e.target.value})} 
-                                className="rounded-none h-20" 
-                              />
-                            </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="category">Categoria</Label>
+                            <Select value={formData.category} onValueChange={(val) => setFormData({...formData, category: val})}>
+                              <SelectTrigger className="rounded-none">
+                                <SelectValue placeholder="Selecione..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {categories.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
                           </div>
-                          
-                          {/* Zircônia */}
-                          <div className="space-y-3 p-4 bg-secondary/30 border border-border">
-                            <Label className="font-mono text-xs uppercase tracking-widest">Zircônia</Label>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div>
-                                <Label className="text-xs text-muted-foreground">Preço (R$)</Label>
-                                <Input 
-                                  type="text" 
-                                  placeholder="0,00"
-                                  value={formData.priceZirconia} 
-                                  onChange={(e) => setFormData({...formData, priceZirconia: e.target.value.replace(/[^\d,]/g, '')})} 
-                                  className="rounded-none font-mono text-sm" 
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Descrição</Label>
-                              <Textarea 
-                                placeholder="Descrição específica para zircônia..."
-                                value={formData.descriptionZirconia} 
-                                onChange={(e) => setFormData({...formData, descriptionZirconia: e.target.value})} 
-                                className="rounded-none h-20" 
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Especificações (uma por linha)</Label>
-                              <Textarea 
-                                placeholder="Material: Ouro 18K&#10;Pedra: Zircônia"
-                                value={formData.specsZirconia} 
-                                onChange={(e) => setFormData({...formData, specsZirconia: e.target.value})} 
-                                className="rounded-none h-20" 
-                              />
-                            </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="collection">Coleção</Label>
+                            <Select value={formData.collection} onValueChange={(val) => setFormData({...formData, collection: val})}>
+                              <SelectTrigger className="rounded-none">
+                                <SelectValue placeholder="Selecione..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {collections.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
                           </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="grid gap-2">
-                        <Label>Galeria de Fotos</Label>
-                        <div className="flex gap-4 items-center">
-                          <Input 
-                              type="file" 
-                              accept="image/*"
-                              multiple
-                              onChange={handleGalleryUpload}
-                              className="rounded-none font-mono text-xs" 
+                        
+                        <div className="grid gap-2">
+                          <Label htmlFor="description">Descrição</Label>
+                          <Textarea id="description" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="rounded-none h-20" />
+                        </div>
+                        
+                        <div className="grid gap-2">
+                          <Label htmlFor="specs">Especificações (uma por linha)</Label>
+                          <Textarea 
+                            id="specs" 
+                            value={formData.specs} 
+                            onChange={(e) => setFormData({...formData, specs: e.target.value})} 
+                            className="rounded-none h-20" 
+                            placeholder="Material: Ouro 18K&#10;Peso: 5g"
                           />
                         </div>
-                        {formData.gallery.length > 0 && (
-                          <div className="grid grid-cols-4 gap-2 mt-2">
-                            {formData.gallery.map((img, idx) => (
-                              <div key={idx} className="relative group h-16 w-16 bg-secondary">
-                                <img src={img} className="h-full w-full object-cover" />
-                                <button 
-                                  onClick={() => removeGalleryImage(idx)}
-                                  className="absolute top-0 right-0 bg-red-500 text-white p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                >
-                                  <Trash className="h-3 w-3" />
-                                </button>
+                        
+                        <div className="grid gap-2">
+                          <Label htmlFor="bestsellerOrder">Ordem no Bestsellers</Label>
+                          <Input id="bestsellerOrder" type="number" placeholder="Deixe vazio para ocultar" value={formData.bestsellerOrder} onChange={(e) => setFormData({...formData, bestsellerOrder: e.target.value})} className="rounded-none" />
+                        </div>
+                        
+                        {/* Stone Type Variants - only for rings */}
+                        {isRingCategory() && (
+                          <div className="border-t border-border pt-4 mt-4">
+                            <h3 className="font-mono text-xs uppercase tracking-widest text-primary mb-4">Tipos de Pedra</h3>
+                            
+                            <div className="space-y-4">
+                              <div className="p-3 bg-secondary/30 border border-border">
+                                <Label className="font-mono text-xs uppercase">Diamante Sintético</Label>
+                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                  <Input type="text" placeholder="Preço R$" value={formData.priceDiamondSynthetic} onChange={(e) => setFormData({...formData, priceDiamondSynthetic: e.target.value.replace(/[^\d,]/g, '')})} className="rounded-none text-sm" />
+                                </div>
+                                <Textarea placeholder="Descrição..." value={formData.descriptionDiamondSynthetic} onChange={(e) => setFormData({...formData, descriptionDiamondSynthetic: e.target.value})} className="rounded-none h-16 mt-2" />
                               </div>
-                            ))}
+                              
+                              <div className="p-3 bg-secondary/30 border border-border">
+                                <Label className="font-mono text-xs uppercase">Zircônia</Label>
+                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                  <Input type="text" placeholder="Preço R$" value={formData.priceZirconia} onChange={(e) => setFormData({...formData, priceZirconia: e.target.value.replace(/[^\d,]/g, '')})} className="rounded-none text-sm" />
+                                </div>
+                                <Textarea placeholder="Descrição..." value={formData.descriptionZirconia} onChange={(e) => setFormData({...formData, descriptionZirconia: e.target.value})} className="rounded-none h-16 mt-2" />
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>
-                    )}
-                  </div>
+                      
+                      {/* RIGHT COLUMN - Media */}
+                      <div className="space-y-4">
+                        <h3 className="font-mono text-xs uppercase tracking-widest text-primary border-b border-border pb-2">Mídia do Produto</h3>
+                        
+                        {/* Image Grid - 4 boxes */}
+                        <div className="grid grid-cols-4 gap-3">
+                          {/* Main Image */}
+                          <div className="space-y-2">
+                            <Label className="text-xs">Imagem Principal</Label>
+                            <div className="relative aspect-square bg-secondary border border-dashed border-border flex items-center justify-center overflow-hidden">
+                              {formData.image ? (
+                                <>
+                                  <img src={formData.image} className="h-full w-full object-cover" />
+                                  <button 
+                                    onClick={() => setFormData(prev => ({...prev, image: ''}))}
+                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                                  >
+                                    <Trash className="h-3 w-3" />
+                                  </button>
+                                </>
+                              ) : (
+                                <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
+                                  <Plus className="h-6 w-6 text-muted-foreground" />
+                                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'image')} className="hidden" />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Version 1 */}
+                          <div className="space-y-2">
+                            <Label className="text-xs">Versão 1</Label>
+                            <div className="relative aspect-square bg-secondary border border-dashed border-border flex items-center justify-center overflow-hidden">
+                              {formData.version1 ? (
+                                <>
+                                  <img src={formData.version1} className="h-full w-full object-cover" />
+                                  <button 
+                                    onClick={() => setFormData(prev => ({...prev, version1: ''}))}
+                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                                  >
+                                    <Trash className="h-3 w-3" />
+                                  </button>
+                                </>
+                              ) : (
+                                <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
+                                  <Plus className="h-6 w-6 text-muted-foreground" />
+                                  <input type="file" accept="image/*" onChange={(e) => handleVersionUpload(e, 'version1')} className="hidden" />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Version 2 */}
+                          <div className="space-y-2">
+                            <Label className="text-xs">Versão 2</Label>
+                            <div className="relative aspect-square bg-secondary border border-dashed border-border flex items-center justify-center overflow-hidden">
+                              {formData.version2 ? (
+                                <>
+                                  <img src={formData.version2} className="h-full w-full object-cover" />
+                                  <button 
+                                    onClick={() => setFormData(prev => ({...prev, version2: ''}))}
+                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                                  >
+                                    <Trash className="h-3 w-3" />
+                                  </button>
+                                </>
+                              ) : (
+                                <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
+                                  <Plus className="h-6 w-6 text-muted-foreground" />
+                                  <input type="file" accept="image/*" onChange={(e) => handleVersionUpload(e, 'version2')} className="hidden" />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Version 3 */}
+                          <div className="space-y-2">
+                            <Label className="text-xs">Versão 3</Label>
+                            <div className="relative aspect-square bg-secondary border border-dashed border-border flex items-center justify-center overflow-hidden">
+                              {formData.version3 ? (
+                                <>
+                                  <img src={formData.version3} className="h-full w-full object-cover" />
+                                  <button 
+                                    onClick={() => setFormData(prev => ({...prev, version3: ''}))}
+                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                                  >
+                                    <Trash className="h-3 w-3" />
+                                  </button>
+                                </>
+                              ) : (
+                                <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
+                                  <Plus className="h-6 w-6 text-muted-foreground" />
+                                  <input type="file" accept="image/*" onChange={(e) => handleVersionUpload(e, 'version3')} className="hidden" />
+                                </label>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <p className="text-[10px] text-muted-foreground">Clique em cada caixa para adicionar uma imagem. Versões aparecem na galeria do produto.</p>
+                        
+                        {/* Video Input */}
+                        <div className="grid gap-2 pt-4 border-t border-border">
+                          <Label htmlFor="video">Vídeo do Produto</Label>
+                          <Input 
+                            id="video" 
+                            type="text" 
+                            placeholder="URL do vídeo (YouTube, Vimeo, etc.)"
+                            value={formData.video} 
+                            onChange={(e) => setFormData({...formData, video: e.target.value})} 
+                            className="rounded-none" 
+                          />
+                          <p className="text-[10px] text-muted-foreground">Cole o link do vídeo do produto</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <DialogFooter className="flex-shrink-0 pt-4 border-t border-border">
                     <Button onClick={handleAdd} className="rounded-none w-full bg-black text-white hover:bg-primary uppercase tracking-widest font-mono text-xs">Salvar</Button>
