@@ -48,9 +48,13 @@ export const products = pgTable("products", {
   name: text("name").notNull(),
   price: integer("price").notNull(), // Base price (Diamante Natural)
   description: text("description").notNull(),
-  image: text("image"), // P&B image (Base64 or URL)
-  imageColor: text("image_color"), // Color image for hover
-  gallery: text("gallery").array(), // Additional images array
+  image: text("image"), // Main image for store display (Base64 or URL)
+  imageColor: text("image_color"), // Color image for hover (kept for backward compatibility)
+  gallery: text("gallery").array(), // Additional images array (kept for backward compatibility)
+  video: text("video"), // Product video URL or embed code
+  version1: text("version1"), // Version 1 image
+  version2: text("version2"), // Version 2 image
+  version3: text("version3"), // Version 3 image
   categoryId: integer("category_id").references(() => categories.id),
   collectionId: integer("collection_id").references(() => collections.id),
   specs: text("specs").array(), // Specifications array
