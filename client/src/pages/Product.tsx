@@ -266,12 +266,12 @@ export default function Product() {
                           </div>
                         </button>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-[800px] p-0">
+                      <DialogContent className="sm:max-w-[400px] p-0">
                         <DialogHeader className="sr-only">
                           <DialogTitle>Vídeo do Produto</DialogTitle>
                           <DialogDescription>Assistir vídeo do produto</DialogDescription>
                         </DialogHeader>
-                        <div className="aspect-video w-full">
+                        <div className="aspect-[9/16] w-full max-h-[80vh]">
                           {(product as any).video.includes('youtube.com') || (product as any).video.includes('youtu.be') ? (
                             <iframe
                               src={(product as any).video
