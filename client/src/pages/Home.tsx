@@ -276,12 +276,12 @@ export default function Home() {
         </div>
 
         <div className="overflow-hidden cursor-grab active:cursor-grabbing" ref={emblaRef}>
-          <div className="flex gap-10 pr-12">
+          <div className="flex pr-12">
             {(bestsellers.length > 0 ? bestsellers : (Array.isArray(products) ? products : []).slice(0, 8)).map((product, idx) => {
               const stoneType = selectedStoneTypes[product.id] || 'natural';
               const productUrl = stoneType !== 'natural' ? `/product/${product.id}?stone=${stoneType}` : `/product/${product.id}`;
               return (
-              <div key={product.id} className="shrink-0 w-[300px] md:w-[400px] group select-none">
+              <div key={product.id} className="shrink-0 w-[300px] md:w-[400px] group select-none mr-10">
                 <Link href={productUrl} className="cursor-pointer">
                   <div className="aspect-[3/4] bg-secondary overflow-hidden mb-6 relative">
                     <img 
