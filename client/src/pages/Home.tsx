@@ -22,6 +22,8 @@ const STONE_TYPES = [
 
 import { testimonials } from '@/lib/mockData';
 
+import img_01 from "@assets/img-01.jpg";
+
 export default function Home() {
   const { products, categories, collections, branding } = useProducts();
   const { toast } = useToast();
@@ -133,7 +135,7 @@ export default function Home() {
             />
           ) : (
             <img 
-              src={branding.heroMediaUrl || heroImage} 
+              src={img_01} 
               alt="Luxury Jewelry Model" 
               className="w-full h-full object-cover grayscale contrast-125"
             />
