@@ -57,8 +57,9 @@ export function Navbar() {
                              item === 'Coleções' ? '/collections' : 
                              item === 'Journal' ? '/journal' :
                              item === 'Manifesto' ? '/manifesto' : '/about';
+                const isActive = location === href || (href === '/shop' && location.startsWith('/shop'));
                 return (
-                  <Link key={item} href={href} className="text-xs font-mono tracking-widest hover:underline underline-offset-4 uppercase">
+                  <Link key={item} href={href} className={`text-xs font-mono tracking-widest hover:underline underline-offset-4 uppercase ${isActive ? 'underline' : ''}`}>
                     {item}
                   </Link>
                 );
@@ -112,15 +113,19 @@ export function Navbar() {
                         {[
                           { name: 'Início', href: '/' },
                           { name: 'Loja', href: '/shop' },
+                          { name: 'Coleções', href: '/collections' },
                           { name: 'Journal', href: '/journal' },
                           { name: 'Manifesto', href: '/manifesto' },
                           { name: 'Sobre', href: '/about' },
                           { name: 'Contato', href: '/contact' }
-                        ].map((item) => (
-                          <Link key={item.name} href={item.href} className="block font-display text-5xl md:text-6xl font-medium hover:text-white/50 transition-colors tracking-tighter">
-                            {item.name}
-                          </Link>
-                        ))}
+                        ].map((item) => {
+                          const isActive = location === item.href || (item.href === '/shop' && location.startsWith('/shop'));
+                          return (
+                            <Link key={item.name} href={item.href} className={`block font-display text-5xl md:text-6xl font-medium hover:text-white/50 transition-colors tracking-tighter ${isActive ? 'underline underline-offset-8' : ''}`}>
+                              {item.name}
+                            </Link>
+                          );
+                        })}
                       </div>
                       <div className="font-mono text-xs tracking-widest text-white/50">
                         {branding.companyName} JEWELRY © 2026
