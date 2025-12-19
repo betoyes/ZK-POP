@@ -712,6 +712,15 @@ export async function registerRoutes(
   app.delete("/api/categories/:id", requireAuth, async (req, res, next) => {
     try {
       const id = parseInt(req.params.id);
+      
+      // Check if category has products before deleting
+      const categoryProducts = await storage.getProductsByCategory(id);
+      if (categoryProducts && categoryProducts.length > 0) {
+        return res.status(400).json({ 
+          message: `Não é possível excluir esta categoria. Existem ${categoryProducts.length} produto(s) associado(s). Remova ou mova os produtos primeiro.` 
+        });
+      }
+      
       await storage.deleteCategory(id);
       res.status(204).send();
     } catch (err) {

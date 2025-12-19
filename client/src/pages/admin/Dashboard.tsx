@@ -4,7 +4,7 @@ import { useProducts } from '@/context/ProductContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { BookOpen, Package, DollarSign, Users, TrendingUp, Edit, Trash, Plus, Search, LayoutGrid, Tags, ShoppingCart, Download, Shield, UserPlus, LogOut } from 'lucide-react';
+import { BookOpen, Package, DollarSign, Users, TrendingUp, Edit, Trash, Plus, Search, LayoutGrid, Tags, ShoppingCart, Download, Shield, UserPlus, LogOut, Pencil } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
@@ -47,7 +47,7 @@ export default function Dashboard() {
     products, categories, collections, orders, customers,
     addProduct, updateProduct, deleteProduct,
     addCategory, deleteCategory,
-    addCollection, deleteCollection,
+    addCollection, updateCollection, deleteCollection,
     posts, addPost, deletePost, updatePost,
     updateOrder, branding, updateBranding
   } = useProducts();
@@ -173,11 +173,13 @@ export default function Dashboard() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isAddCatOpen, setIsAddCatOpen] = useState(false);
   const [isAddColOpen, setIsAddColOpen] = useState(false);
+  const [isEditColOpen, setIsEditColOpen] = useState(false);
   const [isAddPostOpen, setIsAddPostOpen] = useState(false);
   const [isEditPostOpen, setIsEditPostOpen] = useState(false);
   
   const [currentProduct, setCurrentProduct] = useState<any>(null);
   const [currentPost, setCurrentPost] = useState<any>(null);
+  const [currentCollection, setCurrentCollection] = useState<any>(null);
   
   // Stone variation type
   interface StoneVariation {
@@ -642,6 +644,27 @@ export default function Dashboard() {
       deleteCollection(id);
       toast({ title: "Sucesso", description: "Coleção removida" });
     }
+  };
+
+  const openEditCollection = (col: any) => {
+    setCurrentCollection(col);
+    setColFormData({ name: col.name, description: col.description || '', image: col.image || '' });
+    setIsEditColOpen(true);
+  };
+
+  const handleEditCollection = async () => {
+    if (!currentCollection || !colFormData.name) return;
+    
+    await updateCollection(currentCollection.id, {
+      name: colFormData.name,
+      description: colFormData.description,
+      image: colFormData.image
+    });
+    
+    setIsEditColOpen(false);
+    setCurrentCollection(null);
+    setColFormData({ name: '', description: '', image: '' });
+    toast({ title: "Sucesso", description: "Coleção atualizada" });
   };
 
   // Post Handlers
@@ -1792,10 +1815,15 @@ export default function Dashboard() {
               {(Array.isArray(collections) ? collections : []).map(col => (
                 <div key={col.id} className="border border-border bg-card group relative overflow-hidden">
                    <div className="h-48 bg-secondary/30 overflow-hidden">
-                     <img src={col.image} alt={col.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                     {col.image ? (
+                       <img src={col.image} alt={col.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                     ) : (
+                       <div className="w-full h-full flex items-center justify-center text-muted-foreground font-mono text-xs">Sem imagem</div>
+                     )}
                    </div>
                    <div className="p-6 relative z-10 bg-card">
-                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                        <Button onClick={() => openEditCollection(col)} variant="ghost" size="icon" className="h-8 w-8 hover:text-primary hover:bg-transparent"><Pencil className="h-4 w-4" /></Button>
                         <Button onClick={() => handleDeleteCollection(col.id)} variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive hover:bg-transparent"><Trash className="h-4 w-4" /></Button>
                       </div>
                       <h3 className="font-display text-xl mb-2">{col.name}</h3>
@@ -1804,6 +1832,46 @@ export default function Dashboard() {
                 </div>
               ))}
             </div>
+
+            {/* Edit Collection Dialog */}
+            <Dialog open={isEditColOpen} onOpenChange={setIsEditColOpen}>
+              <DialogContent className="sm:max-w-[425px] bg-background border border-border">
+                <DialogHeader>
+                  <DialogTitle className="font-display text-2xl">Editar Coleção</DialogTitle>
+                  <DialogDescription className="sr-only">Formulário para editar uma coleção</DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label>Nome</Label>
+                    <Input value={colFormData.name} onChange={(e) => setColFormData({...colFormData, name: e.target.value})} className="rounded-none" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Descrição</Label>
+                    <Input value={colFormData.description} onChange={(e) => setColFormData({...colFormData, description: e.target.value})} className="rounded-none" />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Imagem da Coleção (Capa)</Label>
+                    {colFormData.image && (
+                      <div className="h-32 w-full bg-secondary mb-2 overflow-hidden">
+                        <img src={colFormData.image} className="h-full w-full object-cover" alt="Preview" />
+                      </div>
+                    )}
+                    <div className="flex gap-4 items-center">
+                      <Input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handleCollectionImageUpload}
+                        className="rounded-none font-mono text-xs" 
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">Selecione uma nova imagem para substituir a atual</p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button onClick={handleEditCollection} className="rounded-none w-full bg-black text-white hover:bg-primary uppercase tracking-widest font-mono text-xs">Salvar Alterações</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
 
           {/* CUSTOMERS TAB */}

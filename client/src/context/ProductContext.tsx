@@ -28,6 +28,7 @@ interface ProductContextType {
   deleteCategory: (id: number) => Promise<void>;
   
   addCollection: (collection: Omit<Collection, 'id'>) => Promise<void>;
+  updateCollection: (id: number, collection: Partial<Collection>) => Promise<void>;
   deleteCollection: (id: number) => Promise<void>;
   
   addPost: (post: Omit<JournalPost, 'id' | 'date'>) => Promise<void>;
@@ -227,6 +228,25 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateCollection = async (id: number, updatedCollection: Partial<Collection>) => {
+    try {
+      const response = await fetch(`/api/collections/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(updatedCollection)
+      });
+      if (response.ok) {
+        const collection = await response.json();
+        setCollections(prev => prev.map(c => c.id === id ? collection : c));
+      } else {
+        console.error('Failed to update collection:', await response.text());
+      }
+    } catch (err) {
+      console.error('Failed to update collection:', err);
+    }
+  };
+
   const deleteCollection = async (id: number) => {
     try {
       const response = await fetch(`/api/collections/${id}`, {
@@ -361,7 +381,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       products, categories, collections, orders, customers, posts, wishlist, cart, isLoading,
       addProduct, updateProduct, deleteProduct,
       addCategory, deleteCategory,
-      addCollection, deleteCollection,
+      addCollection, updateCollection, deleteCollection,
       addPost, deletePost, updatePost,
       updateOrder, toggleWishlist,
       branding, updateBranding,
