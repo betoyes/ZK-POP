@@ -1733,9 +1733,13 @@ export default function Dashboard() {
               {(Array.isArray(categories) ? categories : []).map(cat => {
                 const productCount = (Array.isArray(products) ? products : []).filter(p => p.categoryId === cat.id).length;
                 return (
-                  <div key={cat.id} className="border border-border p-6 bg-card hover:border-black transition-all group relative">
-                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button onClick={() => handleDeleteCategory(cat.id)} variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive hover:bg-transparent"><Trash className="h-4 w-4" /></Button>
+                  <div 
+                    key={cat.id} 
+                    className="border border-border p-6 bg-card hover:border-black transition-all group relative cursor-pointer"
+                    onClick={() => window.location.href = `/shop?category=${cat.slug || cat.name.toLowerCase()}`}
+                  >
+                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <Button onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat.id); }} variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive hover:bg-transparent"><Trash className="h-4 w-4" /></Button>
                     </div>
                     <Tags className="h-8 w-8 mb-4 text-muted-foreground" />
                     <h3 className="font-display text-xl mb-2 capitalize">{cat.name}</h3>
@@ -1819,7 +1823,11 @@ export default function Dashboard() {
               {(Array.isArray(collections) ? collections : []).map(col => {
                 const productCount = (Array.isArray(products) ? products : []).filter(p => p.collectionId === col.id).length;
                 return (
-                  <div key={col.id} className="border border-border bg-card group relative overflow-hidden">
+                  <div 
+                    key={col.id} 
+                    className="border border-border bg-card group relative overflow-hidden cursor-pointer"
+                    onClick={() => window.location.href = `/shop?collection=${col.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
                      <div className="h-48 bg-secondary/30 overflow-hidden relative">
                        {col.image ? (
                          <img src={col.image} alt={col.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
@@ -1831,9 +1839,9 @@ export default function Dashboard() {
                        </div>
                      </div>
                      <div className="p-6 relative z-10 bg-card">
-                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                          <Button onClick={() => openEditCollection(col)} variant="ghost" size="icon" className="h-8 w-8 hover:text-primary hover:bg-transparent"><Pencil className="h-4 w-4" /></Button>
-                          <Button onClick={() => handleDeleteCollection(col.id)} variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive hover:bg-transparent"><Trash className="h-4 w-4" /></Button>
+                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 z-10">
+                          <Button onClick={(e) => { e.stopPropagation(); openEditCollection(col); }} variant="ghost" size="icon" className="h-8 w-8 hover:text-primary hover:bg-transparent"><Pencil className="h-4 w-4" /></Button>
+                          <Button onClick={(e) => { e.stopPropagation(); handleDeleteCollection(col.id); }} variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive hover:bg-transparent"><Trash className="h-4 w-4" /></Button>
                         </div>
                         <h3 className="font-display text-xl mb-2">{col.name}</h3>
                         <p className="font-mono text-xs text-muted-foreground">{col.description}</p>
