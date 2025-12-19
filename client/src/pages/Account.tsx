@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { Package, Heart, LogOut, User, MapPin, CreditCard } from 'lucide-react';
+import { Package, Heart, LogOut, User, MapPin, CreditCard, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
@@ -74,6 +74,15 @@ export default function Account() {
                >
                  Lista de Desejos
                </button>
+               <Link href="/privacy">
+                 <button 
+                   className="text-left px-4 py-3 font-mono text-xs uppercase tracking-widest border-l-2 transition-all border-transparent hover:bg-secondary/30 flex items-center gap-2 w-full"
+                   data-testid="link-privacy"
+                 >
+                   <Shield className="h-3 w-3" />
+                   Privacidade e Dados
+                 </button>
+               </Link>
              </div>
           </div>
 

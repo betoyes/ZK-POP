@@ -32,6 +32,7 @@ import VerifyEmail from "@/pages/VerifyEmail";
 import Manifesto from "@/pages/Manifesto";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
+import PrivacyDashboard from "@/pages/PrivacyDashboard";
 
 function Router() {
   return (
@@ -40,6 +41,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/login" component={Login} />
         <Route path="/account" component={Account} />
+        <Route path="/privacy" component={PrivacyDashboard} />
         <Route path="/verify-email" component={VerifyEmail} />
         <Route path="/forgot-password" component={ForgotPassword} />
         <Route path="/reset-password" component={ResetPassword} />
