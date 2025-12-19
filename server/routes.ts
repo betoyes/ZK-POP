@@ -667,6 +667,7 @@ export async function registerRoutes(
   
   app.get("/api/categories", async (req, res, next) => {
     try {
+      res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       const categories = await storage.getCategories();
       res.json(categories);
     } catch (err) {
@@ -732,6 +733,7 @@ export async function registerRoutes(
   
   app.get("/api/collections", async (req, res, next) => {
     try {
+      res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       const collections = await storage.getCollections();
       res.json(collections);
     } catch (err) {
@@ -788,6 +790,7 @@ export async function registerRoutes(
   
   app.get("/api/products", async (req, res, next) => {
     try {
+      res.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=120');
       const { category, collection, bestsellers, new: isNew } = req.query;
       
       let products: any[] = [];
@@ -869,6 +872,7 @@ export async function registerRoutes(
   
   app.get("/api/journal", async (req, res, next) => {
     try {
+      res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
       const posts = await storage.getJournalPosts();
       res.json(posts);
     } catch (err) {
@@ -1162,6 +1166,7 @@ export async function registerRoutes(
   
   app.get("/api/branding", async (req, res, next) => {
     try {
+      res.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=600');
       const branding = await storage.getBranding();
       if (!branding) {
         return res.status(404).json({ message: "Branding não configurado" });
