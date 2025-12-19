@@ -180,7 +180,70 @@ Preferred communication style: Simple, everyday language.
 - Password reset links (1-hour expiry)
 - Fallback to onboarding@resend.dev if domain not verified
 
-## Recent Changes (November 2025)
+## Security & LGPD Compliance
+
+### Security Features
+- **Rate Limiting**: Protection against brute force attacks
+  - Login: 5 attempts per 15 minutes per IP
+  - Register: 3 attempts per hour per IP
+  - Forgot Password: 3 attempts per hour per IP
+  - Password Reset: 5 attempts per 15 minutes per IP
+- **CSRF Protection**: Session-based CSRF tokens validated on POST/PATCH/DELETE requests
+- **Input Validation**: Zod schemas validate all auth inputs with Portuguese error messages
+- **Password Strength**: Minimum 8 characters with complexity requirements
+- **Secure Tokens**: crypto.randomBytes(32) for verification and reset tokens
+
+### LGPD (Brazilian Data Protection Law) Compliance
+- **Consent Management**: Users must accept Terms and Privacy Policy during registration
+  - consentTerms (required)
+  - consentPrivacy (required)
+  - consentMarketing (optional)
+- **Data Export**: Users can request export of all personal data (JSON format)
+  - Rate limited: 1 request per 24 hours
+  - Download expires after 24 hours
+- **Account Deletion**: Two options available
+  - Anonymization: Replaces PII with "ANON_{id}" but keeps transaction history
+  - Soft Delete: Sets deletedAt, data purged after 30-day retention period
+- **Audit Logging**: All sensitive actions logged to audit_logs table
+  - login, login_failed, logout, register
+  - password_reset_request, password_reset_complete
+  - email_verified, consent_update
+  - data_export_request, data_export_generated
+  - account_delete, account_anonymize
+
+### LGPD API Endpoints
+- `GET /api/lgpd/consent-history` - View consent data and audit history
+- `PATCH /api/lgpd/consent` - Update consent preferences
+- `POST /api/lgpd/data-export` - Request data export
+- `GET /api/lgpd/data-export/:id` - Check export status
+- `POST /api/lgpd/data-export/:id/generate` - Generate export file
+- `DELETE /api/lgpd/account` - Anonymize or delete account
+- `GET /api/lgpd/data` - View all personal data
+
+### Authentication Flow
+1. **Registration**: User provides email, password, and accepts consents
+2. **Email Verification**: Verification email sent via Resend (24h expiry)
+3. **Login**: Only verified users can login (admin exempt)
+4. **Password Reset**: Secure token via email (1h expiry, invalidates previous tokens)
+
+### Frontend Pages
+- `/login` - Login form with toggle to register mode
+- `/register` - Redirects to /login?mode=register
+- `/forgot-password` - Request password reset email
+- `/reset-password` - Set new password with token
+- `/verify-email` - Verify email with token
+- `/privacy` - Privacy dashboard for consent, data export, account deletion
+
+## Recent Changes (December 2025)
+
+1. **LGPD Compliance**: Full implementation of Brazilian data protection requirements
+2. **Security Hardening**: Rate limiting, CSRF protection, input validation, audit logging
+3. **Email Verification Flow**: Complete flow with resend capability
+4. **Password Reset Improvements**: Secure tokens with invalidation of previous tokens
+5. **Privacy Dashboard**: Frontend for managing consents, data export, and account deletion
+6. **Registration with Consents**: Required checkboxes for terms and privacy policy
+
+## Previous Changes (November 2025)
 
 1. **CRUD Persistence Fixed**: ProductContext now calls backend APIs instead of only updating local state
 2. **Type System Fixed**: All CRUD functions properly typed as `Promise<void>`, numeric IDs for categories/collections
