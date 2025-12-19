@@ -11,11 +11,81 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   role: text("role").notNull().default('customer'), // 'admin' | 'customer'
   createdAt: text("created_at"),
+  // LGPD compliance fields
+  email: text("email").unique(),
+  emailVerified: boolean("email_verified").default(false),
+  emailVerifiedAt: text("email_verified_at"),
+  phone: text("phone"),
+  consentMarketing: boolean("consent_marketing").default(false),
+  consentTerms: boolean("consent_terms").default(false),
+  consentPrivacy: boolean("consent_privacy").default(false),
+  consentAt: text("consent_at"),
+  lastLoginAt: text("last_login_at"),
+  deletedAt: text("deleted_at"),
+  anonymizedAt: text("anonymized_at"),
+  retentionExpiresAt: text("retention_expires_at"),
 });
 
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users).omit({ 
+  id: true, 
+  createdAt: true,
+  emailVerifiedAt: true,
+  consentAt: true,
+  lastLoginAt: true,
+  deletedAt: true,
+  anonymizedAt: true,
+  retentionExpiresAt: true,
+});
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// Registration validation schema
+export const registerUserSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  consentTerms: z.literal(true, { errorMap: () => ({ message: "You must accept the Terms of Use" }) }),
+  consentPrivacy: z.literal(true, { errorMap: () => ({ message: "You must accept the Privacy Policy" }) }),
+  consentMarketing: z.boolean().optional().default(false),
+});
+export type RegisterUser = z.infer<typeof registerUserSchema>;
+
+// Login validation schema
+export const loginUserSchema = z.object({
+  usernameOrEmail: z.string().min(1, "Username or email is required"),
+  password: z.string().min(1, "Password is required"),
+});
+export type LoginUser = z.infer<typeof loginUserSchema>;
+
+// Audit logs table for LGPD compliance
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  action: text("action").notNull(), // 'login', 'logout', 'password_change', 'data_export', 'account_delete', 'consent_update'
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  details: text("details"), // JSON string for additional info
+  createdAt: text("created_at").notNull(),
+});
+
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({ id: true });
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
+export type AuditLog = typeof auditLogs.$inferSelect;
+
+// Data export requests table for LGPD compliance
+export const dataExportRequests = pgTable("data_export_requests", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  status: text("status").notNull().default('pending'), // 'pending', 'processing', 'completed', 'failed'
+  requestedAt: text("requested_at").notNull(),
+  completedAt: text("completed_at"),
+  downloadUrl: text("download_url"),
+  expiresAt: text("expires_at"),
+});
+
+export const insertDataExportRequestSchema = createInsertSchema(dataExportRequests).omit({ id: true });
+export type InsertDataExportRequest = z.infer<typeof insertDataExportRequestSchema>;
+export type DataExportRequest = typeof dataExportRequests.$inferSelect;
 
 // Categories table
 export const categories = pgTable("categories", {
