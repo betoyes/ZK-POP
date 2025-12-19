@@ -56,6 +56,8 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState("overview");
+  const [filterCategoryId, setFilterCategoryId] = useState<number | null>(null);
+  const [filterCollectionId, setFilterCollectionId] = useState<number | null>(null);
   
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
@@ -373,9 +375,12 @@ export default function Dashboard() {
     }
   };
 
-  const filteredProducts = (Array.isArray(products) ? products : []).filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = (Array.isArray(products) ? products : []).filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategoryId ? p.categoryId === filterCategoryId : true;
+    const matchesCollection = filterCollectionId ? p.collectionId === filterCollectionId : true;
+    return matchesSearch && matchesCategory && matchesCollection;
+  });
   
   const filteredPosts = posts.filter(p => 
     p.title.toLowerCase().includes(searchTerm.toLowerCase())
@@ -974,6 +979,26 @@ export default function Dashboard() {
 
           {/* PRODUCTS TAB */}
           <TabsContent value="products" className="space-y-6">
+            {/* Filter indicator */}
+            {(filterCategoryId || filterCollectionId) && (
+              <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/20">
+                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                  Filtrando por:
+                </span>
+                <span className="font-display text-lg">
+                  {filterCategoryId && categories.find(c => c.id === filterCategoryId)?.name}
+                  {filterCollectionId && collections.find(c => c.id === filterCollectionId)?.name}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => { setFilterCategoryId(null); setFilterCollectionId(null); }}
+                  className="ml-auto font-mono text-xs uppercase tracking-widest hover:bg-transparent hover:text-primary"
+                >
+                  Limpar Filtro
+                </Button>
+              </div>
+            )}
             <div className="flex justify-between items-center">
               <div className="relative w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -1736,7 +1761,7 @@ export default function Dashboard() {
                   <div 
                     key={cat.id} 
                     className="border border-border p-6 bg-card hover:border-black transition-all group relative cursor-pointer"
-                    onClick={() => window.location.href = `/shop?category=${cat.slug || cat.name.toLowerCase()}`}
+                    onClick={() => { setFilterCategoryId(cat.id); setFilterCollectionId(null); setActiveTab('products'); }}
                   >
                     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                       <Button onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat.id); }} variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive hover:bg-transparent"><Trash className="h-4 w-4" /></Button>
@@ -1826,7 +1851,7 @@ export default function Dashboard() {
                   <div 
                     key={col.id} 
                     className="border border-border bg-card group relative overflow-hidden cursor-pointer"
-                    onClick={() => window.location.href = `/shop?collection=${col.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    onClick={() => { setFilterCollectionId(col.id); setFilterCategoryId(null); setActiveTab('products'); }}
                   >
                      <div className="h-48 bg-secondary/30 overflow-hidden relative">
                        {col.image ? (
