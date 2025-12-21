@@ -90,19 +90,23 @@ export default function Home() {
           style={{ y: y1 }}
           className="absolute inset-0 opacity-60"
         >
-          {branding.heroMediaType === 'video' ? (
+          {branding.heroMediaType === 'video' && branding.heroMediaUrl ? (
             <video 
-              src={branding.heroMediaUrl || heroImage} 
+              src={branding.heroMediaUrl} 
               autoPlay 
               loop 
               muted 
               playsInline
+              preload="metadata"
+              poster={img_01}
               className="w-full h-full object-cover grayscale contrast-125"
+              style={{ willChange: 'transform' }}
             />
           ) : (
             <img 
-              src={img_01} 
+              src={branding.heroMediaUrl || img_01} 
               alt="Luxury Jewelry Model" 
+              loading="eager"
               className="w-full h-full object-cover grayscale contrast-125"
             />
           )}
