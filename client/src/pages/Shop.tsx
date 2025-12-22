@@ -19,7 +19,7 @@ export default function Shop() {
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategory === 'all' ? [] : [initialCategory]);
   const [selectedCollections, setSelectedCollections] = useState<string[]>(initialCollection ? [initialCollection] : []);
-  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [priceRange, setPriceRange] = useState([0, 500000]);
   const [sortOption, setSortOption] = useState('newest');
   const [selectedStoneTypes, setSelectedStoneTypes] = useState<Record<number, string>>({});
   const [showNoivasSection, setShowNoivasSection] = useState(true);
@@ -89,7 +89,7 @@ export default function Shop() {
   const clearFilters = () => {
     setSelectedCategories([]);
     setSelectedCollections([]);
-    setPriceRange([0, 50000]);
+    setPriceRange([0, 500000]);
     setSortOption('newest');
     window.history.pushState({}, '', '/shop'); // Clear URL params
   };
@@ -307,8 +307,8 @@ export default function Shop() {
               <h3 className="font-mono text-xs uppercase tracking-widest mb-6 text-muted-foreground">Faixa de Preço</h3>
               <div className="space-y-6">
                 <Slider 
-                  defaultValue={[0, 50000]} 
-                  max={50000} 
+                  defaultValue={[0, 500000]} 
+                  max={500000} 
                   step={1000}
                   value={priceRange}
                   onValueChange={setPriceRange}
