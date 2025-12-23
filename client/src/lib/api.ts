@@ -1,19 +1,32 @@
 // API client for backend requests
+import { getCsrfToken } from './csrf';
 
 const API_BASE = '/api';
+
+const UNSAFE_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
 class APIClient {
   private async request<T>(
     endpoint: string,
     options?: RequestInit
   ): Promise<T> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options?.headers as Record<string, string>),
+    };
+
+    const method = (options?.method || 'GET').toUpperCase();
+    if (UNSAFE_METHODS.includes(method)) {
+      const csrfToken = getCsrfToken();
+      if (csrfToken) {
+        headers['x-csrf-token'] = csrfToken;
+      }
+    }
+
     const response = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-      credentials: 'include', // Important for session cookies
+      headers,
+      credentials: 'include',
     });
 
     if (!response.ok) {

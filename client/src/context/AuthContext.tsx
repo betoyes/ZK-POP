@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api } from '@/lib/api';
+import { fetchCsrfToken, clearCsrfToken } from '@/lib/csrf';
 
 interface User {
   id: number;
@@ -23,8 +24,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    checkAuth();
+    initAuth();
   }, []);
+
+  const initAuth = async () => {
+    await fetchCsrfToken();
+    await checkAuth();
+  };
 
   const checkAuth = async () => {
     try {
@@ -45,11 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await api.auth.login(username, password);
     const userData = data as User;
     setUser(userData);
+    await fetchCsrfToken();
     return userData;
   };
 
   const logout = async () => {
     await api.auth.logout();
+    clearCsrfToken();
     setUser(null);
   };
 
